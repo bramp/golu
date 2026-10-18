@@ -55,6 +55,7 @@ const BASE_KIOSK_VIEW_MS = 6000;
 const MS_PER_KIOSK_WORD = 350;
 const MIN_KIOSK_DURATION_MS = 10000;
 const MAX_KIOSK_DURATION_MS = 30000;
+const DEFAULT_INACTIVITY_TIMEOUT_MS = 90000;
 
 export function kioskSpotlightDurationMs(question: Question): number {
   const dollName = question.name ?? question.options[question.correctIndex]!;
@@ -79,11 +80,13 @@ export function mountApp(
     kodi = false,
     base = "./",
     kioskIntervalMs,
+    inactivityTimeoutMs = DEFAULT_INACTIVITY_TIMEOUT_MS,
   }: {
     demo?: boolean;
     kodi?: boolean;
     base?: string;
     kioskIntervalMs?: number;
+    inactivityTimeoutMs?: number;
   } = {},
 ): () => void {
   const game = new Game();
@@ -92,6 +95,7 @@ export function mountApp(
   let quitting = false;
   let peekFullGolu = false;
   let kioskTimer: ReturnType<typeof setTimeout> | undefined;
+  let inactivityTimer: ReturnType<typeof setTimeout> | undefined;
 
   function mediaUrl(path: string): string {
     return new URL(path.replace(/^\//, ""), new URL(base, document.baseURI))
@@ -102,6 +106,22 @@ export function mountApp(
     if (kioskTimer !== undefined) {
       clearTimeout(kioskTimer);
       kioskTimer = undefined;
+    }
+  }
+
+  function clearInactivityTimer(): void {
+    if (inactivityTimer !== undefined) {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = undefined;
+    }
+  }
+
+  function resetInactivityTimer(): void {
+    clearInactivityTimer();
+    if ((game.phase !== "KIOSK_MODE" || quitting) && inactivityTimeoutMs > 0) {
+      inactivityTimer = setTimeout(() => {
+        returnToKiosk();
+      }, inactivityTimeoutMs);
     }
   }
 
@@ -308,6 +328,7 @@ export function mountApp(
         : null;
 
     root.replaceChildren();
+    resetInactivityTimer();
     if (quitting) {
       clearKioskTimer();
       const panel = element("div", undefined, "hud-panel quit-panel");
@@ -562,10 +583,23 @@ export function mountApp(
     }
   }
 
+  const onUserActivity = (): void => {
+    if (game.phase !== "KIOSK_MODE" || quitting) {
+      resetInactivityTimer();
+    }
+  };
+  window.addEventListener("keydown", onUserActivity);
+  window.addEventListener("pointerdown", onUserActivity);
+  window.addEventListener("touchstart", onUserActivity, { passive: true });
+
   const cleanupNav = installNavigation(root, returnToKiosk);
   render();
   return () => {
     clearKioskTimer();
+    clearInactivityTimer();
+    window.removeEventListener("keydown", onUserActivity);
+    window.removeEventListener("pointerdown", onUserActivity);
+    window.removeEventListener("touchstart", onUserActivity);
     cleanupNav();
   };
 }

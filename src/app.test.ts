@@ -123,6 +123,31 @@ describe("playable app", () => {
     );
   });
 
+  it("returns to kiosk mode after inactivity during a round", () => {
+    vi.useFakeTimers();
+    try {
+      cleanup();
+      cleanup = mountApp(root, manifest, {
+        demo: true,
+        base: "/golu/",
+        inactivityTimeoutMs: 5000,
+      });
+      click("Start game");
+      expect(root.textContent).toContain("Question 1 / 3");
+
+      vi.advanceTimersByTime(3000);
+      key("ArrowRight");
+      vi.advanceTimersByTime(3000);
+      expect(root.textContent).toContain("Question 1 / 3");
+
+      vi.advanceTimersByTime(2500);
+      expect(root.textContent).toContain("Doll Spotlight");
+      expect(root.textContent).not.toContain("Question 1 / 3");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("moves focus in a 2x2 grid and keeps a single tab stop", () => {
     click("Start game");
     expect(document.activeElement?.textContent).toBe("Orange");

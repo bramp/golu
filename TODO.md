@@ -37,6 +37,7 @@
   - [x] Implement `QUESTION_ACTIVE` state: Zoom into the current doll's `region` with a spotlight highlight frame and full-Golu peek toggle, track current question index, and lock out duplicate submissions.
   - [x] Implement `ANSWER_REVEAL` state: Highlight selected vs. correct button, display the `explanation` caption, increment score, and focus the **"Next question"** button.
   - [x] Implement `GAME_OVER` state: Zoom back out to the full Golu display, show final score, and offer **"Play again"** / **"Back to kiosk"** actions.
+  - [x] Automatically return from `QUESTION_ACTIVE`, `ANSWER_REVEAL`, or `GAME_OVER` back to `KIOSK_MODE` after a period of inactivity.
 - [x] **Background Image Preloader (`src/app.ts`)**
   - [x] When rendering question $N$, instantiate `new Image().src = questions[N + 1].image` in the background so the next photo is already decoded in browser memory before the user advances.
 
@@ -77,7 +78,7 @@
   - [ ] _(Optional)_ If the photo set grows large, upload `public/assets/*.webp` to a Cloudflare R2 bucket and set `Cache-Control: public, max-age=31536000, immutable`.
 - [ ] **Privacy / Access Control**
   - [ ] Configure a Cloudflare Access policy or add a lightweight client-side passcode gate if the family/travel photos shouldn't be publicly indexed.
-  - [ ] Add `<meta name="robots" content="noindex, nofollow">` to `index.html`.
+  - [x] Add `<meta name="robots" content="noindex, nofollow">` to `index.html`.
 
 ---
 
