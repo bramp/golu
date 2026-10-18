@@ -56,6 +56,50 @@ const MS_PER_KIOSK_WORD = 350;
 const MIN_KIOSK_DURATION_MS = 10000;
 const MAX_KIOSK_DURATION_MS = 30000;
 const DEFAULT_INACTIVITY_TIMEOUT_MS = 90000;
+const MOBILE_FULLSCREEN_MEDIA_QUERY = "(pointer: coarse), (max-height: 540px)";
+
+type FullscreenCapableDocument = Document & {
+  webkitFullscreenElement?: Element | null;
+};
+
+type FullscreenCapableElement = HTMLElement & {
+  webkitRequestFullscreen?: () => Promise<void> | void;
+};
+
+type LockableScreenOrientation = ScreenOrientation & {
+  lock?: (orientation: "landscape") => Promise<void>;
+};
+
+export function requestMobileFullscreen(): void {
+  if (typeof window.matchMedia !== "function") return;
+  if (!window.matchMedia(MOBILE_FULLSCREEN_MEDIA_QUERY).matches) return;
+
+  const doc = document as FullscreenCapableDocument;
+  const docEl = document.documentElement as FullscreenCapableElement | null;
+  if (docEl && !doc.fullscreenElement && !doc.webkitFullscreenElement) {
+    try {
+      if (typeof docEl.requestFullscreen === "function") {
+        void Promise.resolve(
+          docEl.requestFullscreen({ navigationUI: "hide" }),
+        ).catch(() => {});
+      } else if (typeof docEl.webkitRequestFullscreen === "function") {
+        void Promise.resolve(docEl.webkitRequestFullscreen()).catch(() => {});
+      }
+    } catch {
+      // Ignore fullscreen errors on unsupported mobile browsers.
+    }
+  }
+
+  const orientation = window.screen?.orientation as
+    LockableScreenOrientation | undefined;
+  if (typeof orientation?.lock === "function") {
+    try {
+      void Promise.resolve(orientation.lock("landscape")).catch(() => {});
+    } catch {
+      // Ignore orientation lock errors when unsupported or denied.
+    }
+  }
+}
 
 export function kioskSpotlightDurationMs(question: Question): number {
   const dollName = question.name ?? question.options[question.correctIndex]!;
@@ -254,6 +298,7 @@ export function mountApp(
   }
 
   function startGame(): void {
+    requestMobileFullscreen();
     clearKioskTimer();
     peekFullGolu = false;
     game.start(pack);
@@ -278,6 +323,7 @@ export function mountApp(
   }
 
   function togglePeek(): void {
+    requestMobileFullscreen();
     peekFullGolu = !peekFullGolu;
     const stage = root.querySelector<HTMLElement>(".golu-stage");
     const zoomBtn = root.querySelector<HTMLButtonElement>(

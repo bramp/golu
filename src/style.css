@@ -31,7 +31,19 @@ main {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: clamp(0.75rem, 2vh, 1.4rem) clamp(1rem, 2.5vw, 2.25rem);
+  padding-top: max(clamp(0.75rem, 2vh, 1.4rem), env(safe-area-inset-top, 0px));
+  padding-right: max(
+    clamp(1rem, 2.5vw, 2.25rem),
+    env(safe-area-inset-right, 0px)
+  );
+  padding-bottom: max(
+    clamp(0.75rem, 2vh, 1.4rem),
+    env(safe-area-inset-bottom, 0px)
+  );
+  padding-left: max(
+    clamp(1rem, 2.5vw, 2.25rem),
+    env(safe-area-inset-left, 0px)
+  );
   pointer-events: none;
 }
 
@@ -391,7 +403,10 @@ button:disabled {
   }
 
   main {
-    padding: 0.4rem 0.85rem;
+    padding-top: max(0.4rem, env(safe-area-inset-top, 0px));
+    padding-right: max(0.85rem, env(safe-area-inset-right, 0px));
+    padding-bottom: max(0.4rem, env(safe-area-inset-bottom, 0px));
+    padding-left: max(0.85rem, env(safe-area-inset-left, 0px));
   }
 
   .hud-top {

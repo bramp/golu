@@ -1,0 +1,11 @@
+{
+  "name": "Golu · Photo Trivia",
+  "short_name": "Golu Trivia",
+  "description": "Interactive Golu doll spotlight and photo trivia game",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#080e18",
+  "theme_color": "#080e18"
+}

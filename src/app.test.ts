@@ -194,4 +194,50 @@ describe("playable app", () => {
       "<img src=x onerror=alert(1)>",
     );
   });
+
+  it("requests fullscreen and landscape lock on mobile when clicking Show full Golu or Start game", () => {
+    const requestFullscreen = vi.fn().mockResolvedValue(undefined);
+    const lockOrientation = vi.fn().mockResolvedValue(undefined);
+    const originalMatchMedia = window.matchMedia;
+    const originalRequestFullscreen =
+      document.documentElement.requestFullscreen;
+
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      writable: true,
+      value: vi.fn().mockReturnValue({ matches: true }),
+    });
+    Object.defineProperty(document.documentElement, "requestFullscreen", {
+      configurable: true,
+      writable: true,
+      value: requestFullscreen,
+    });
+    Object.defineProperty(window.screen, "orientation", {
+      configurable: true,
+      writable: true,
+      value: { lock: lockOrientation },
+    });
+
+    try {
+      click("Show full Golu");
+      expect(requestFullscreen).toHaveBeenCalledTimes(1);
+      expect(requestFullscreen).toHaveBeenCalledWith({ navigationUI: "hide" });
+      expect(lockOrientation).toHaveBeenCalledWith("landscape");
+
+      click("Start game");
+      expect(requestFullscreen).toHaveBeenCalledTimes(2);
+      expect(lockOrientation).toHaveBeenCalledTimes(2);
+    } finally {
+      Object.defineProperty(window, "matchMedia", {
+        configurable: true,
+        writable: true,
+        value: originalMatchMedia,
+      });
+      Object.defineProperty(document.documentElement, "requestFullscreen", {
+        configurable: true,
+        writable: true,
+        value: originalRequestFullscreen,
+      });
+    }
+  });
 });
