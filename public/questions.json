@@ -1,5 +1,5 @@
 {
-  "version": "a321b552c971c1d5f774ad84bf6e46ba52cacb08f7c4423d4e129a17208f6d1c",
+  "version": "ceda48c2e15ce2ff335ca043d600f3ecb33b3873a8fa69437c6a36d57a5fff8d",
   "title": "Navaratri Golu Trivia",
   "image": "assets/img_52b373ab1a6649a9b0b1e54c4400adff2e42f680bb2c7953797c2ce922360c26.webp",
   "packs": [
@@ -25,6 +25,10 @@
             "y": 0.052,
             "width": 0.046,
             "height": 0.172
+          },
+          "audio": {
+            "question": "assets/audio_a018d4b1bd48e3e29f9dc17e2950d33b9d21c16bfdd279dee59f33a197aca610.mp3",
+            "reveal": "assets/audio_767e8f3f5694abf810701388102f31b629aa7ececa46ab5e67516c167f87a2ed.mp3"
           }
         },
         {
@@ -45,6 +49,10 @@
             "y": 0.104,
             "width": 0.063,
             "height": 0.122
+          },
+          "audio": {
+            "question": "assets/audio_5c7069bcebed1adf5f831d4dd78cfb0476ed86619be7bb01f9a5ad5317b92266.mp3",
+            "reveal": "assets/audio_a8759fb97fa7779f35ac672db9ead5e39dfbc43f9ede81bddf4d7f4f1dd3b1ea.mp3"
           }
         },
         {
@@ -65,6 +73,10 @@
             "y": 0.082,
             "width": 0.081,
             "height": 0.15
+          },
+          "audio": {
+            "question": "assets/audio_3640f44a7872c8002f3236d266a96a7bea412bdc631a316a0419da5c2938f267.mp3",
+            "reveal": "assets/audio_a64a3d164d0017e3db4e2ab850ca99eda393d9eb09e12e78f1121507db053caf.mp3"
           }
         },
         {
@@ -85,6 +97,10 @@
             "y": 0.036,
             "width": 0.174,
             "height": 0.191
+          },
+          "audio": {
+            "question": "assets/audio_677cbb799e490459225de5782990692d6fb8cfeb0b1696290bd86a39f7abd20e.mp3",
+            "reveal": "assets/audio_4fadd1c3f69698d19d73a0c7918b0d330759b4dc118912548bb366fcff10e8c7.mp3"
           }
         },
         {
@@ -105,6 +121,10 @@
             "y": 0.159,
             "width": 0.047,
             "height": 0.075
+          },
+          "audio": {
+            "question": "assets/audio_cd77575845e3a3319b5cf876289b156513c351a03e2116497678b8cb64014285.mp3",
+            "reveal": "assets/audio_a9d464f05e043397924f77f6a9670de55524fa164b79b3a914449e3f2cc267bc.mp3"
           }
         },
         {
@@ -125,6 +145,10 @@
             "y": 0.056,
             "width": 0.05,
             "height": 0.171
+          },
+          "audio": {
+            "question": "assets/audio_2e4e4261dc7b837dd76c007061bea085e52668abf711d7ebf670df0a4364fb38.mp3",
+            "reveal": "assets/audio_0748bc599ca9f849ad729d6161d2f9412f2de4b9e4d8f6cd8516c013c6803ca9.mp3"
           }
         },
         {
@@ -145,6 +169,10 @@
             "y": 0.088,
             "width": 0.048,
             "height": 0.136
+          },
+          "audio": {
+            "question": "assets/audio_8a80e34529632e4343f95e95b6178dc9904d2890d460f82d495b0c41439f07c8.mp3",
+            "reveal": "assets/audio_09bfb5bce25ffc3de4bcedab1e6b43fe69e415803a3f2ef27987f762845b9c07.mp3"
           }
         },
         {
@@ -165,6 +193,10 @@
             "y": 0.019,
             "width": 0.057,
             "height": 0.204
+          },
+          "audio": {
+            "question": "assets/audio_798651c871330a46831af3361b0b1a4ce5e794ac4b13c6e023034c52c08d0115.mp3",
+            "reveal": "assets/audio_2c15081cfa9a9dce631a04cc83172bbb1a5c7b746aff5ba447812237df725205.mp3"
           }
         },
         {
@@ -185,6 +217,10 @@
             "y": 0.063,
             "width": 0.062,
             "height": 0.161
+          },
+          "audio": {
+            "question": "assets/audio_c331117ad16c91857c28318fac667b8a4854897454089bcc29db82c03c6b3403.mp3",
+            "reveal": "assets/audio_8335b440208fc51fc50187c8848bb980e8028acfc9418c1a1d9326b682ab253b.mp3"
           }
         },
         {
@@ -205,6 +241,10 @@
             "y": 0.258,
             "width": 0.681,
             "height": 0.176
+          },
+          "audio": {
+            "question": "assets/audio_b415927d7ed1f6abae0efb3a075bca2da4b72f4e55f4c3c4f44ea25677a7ea42.mp3",
+            "reveal": "assets/audio_e73d4c9d30b917918e4b40777ac5a3add38100a8dab145b1f571a384dc9bdb09.mp3"
           }
         },
         {
@@ -225,6 +265,10 @@
             "y": 0.258,
             "width": 0.103,
             "height": 0.161
+          },
+          "audio": {
+            "question": "assets/audio_52b023b6aed0382198abd0912fdabc2c802a8a1f811b4a6d87f9ae23f56f5f96.mp3",
+            "reveal": "assets/audio_05289c8795ff99d8df6b47eb9f2f93ad19a06847dee7bdc22b285ce674884175.mp3"
           }
         },
         {
@@ -245,6 +289,10 @@
             "y": 0.261,
             "width": 0.068,
             "height": 0.16
+          },
+          "audio": {
+            "question": "assets/audio_ff2e4e4b0f23df0cc67582454dea3d6a99ce40f78273e02cb26728335124e12c.mp3",
+            "reveal": "assets/audio_b74ed3ee23cedef5e7f4f0a7338c2aa9d4b8d9081ffd2b3e9e7a50656ae4eedf.mp3"
           }
         },
         {
@@ -265,6 +313,10 @@
             "y": 0.425,
             "width": 0.745,
             "height": 0.207
+          },
+          "audio": {
+            "question": "assets/audio_8c80a6141fcd29912e925f2659eaf6c6de329c897c6b9ee069ab46c19b692bea.mp3",
+            "reveal": "assets/audio_f9e94394bab09924f81ee444d5e4896c4a878dd26952f0407159c6dfa8e92060.mp3"
           }
         },
         {
@@ -285,6 +337,10 @@
             "y": 0.468,
             "width": 0.265,
             "height": 0.189
+          },
+          "audio": {
+            "question": "assets/audio_7775aecb28668c6b0b2a96132b7054fea48652122afd9f20cce61a0fceb0acf9.mp3",
+            "reveal": "assets/audio_c89252f0168b3ac66983ce15ef5ca2885c0708e25bc84f8f71a46bb297277666.mp3"
           }
         },
         {
@@ -305,6 +361,10 @@
             "y": 0.499,
             "width": 0.16,
             "height": 0.147
+          },
+          "audio": {
+            "question": "assets/audio_f139bacb6bafb2de227186577268301fb28061a544dc7b1fd66ea6b55e989a5a.mp3",
+            "reveal": "assets/audio_bef80257c69b0f360b5b8188cb2ea80cfee9e78f057fa0d004178ddd270c2adf.mp3"
           }
         },
         {
@@ -325,6 +385,10 @@
             "y": 0.771,
             "width": 0.325,
             "height": 0.151
+          },
+          "audio": {
+            "question": "assets/audio_37390e585508dc2fa740a5f6d08a6de49da9c0f4d5848a3f2d7502696b6aac1a.mp3",
+            "reveal": "assets/audio_b4edb7fd4976c6566182a2489d52632bd48963020b7038c2616341a66667d36e.mp3"
           }
         },
         {
@@ -345,6 +409,10 @@
             "y": 0.654,
             "width": 0.119,
             "height": 0.213
+          },
+          "audio": {
+            "question": "assets/audio_af18483a40e6de48b028b0e7449913b1f06e3dbb50128a5a34eb4a70dc6dd6bf.mp3",
+            "reveal": "assets/audio_d0397c315c447890761395529c898bec2ef430e4f8609affbe8e64dbedb7d72d.mp3"
           }
         },
         {
@@ -365,9 +433,27 @@
             "y": 0.708,
             "width": 0.32,
             "height": 0.201
+          },
+          "audio": {
+            "question": "assets/audio_8420da6795972dc8d49b523cb6f3f384d9c6813309b3c4e9fe4f8df2eccbdb0a.mp3",
+            "reveal": "assets/audio_9f9a02fc032d7f6e7d5ec180e6738e7fc812183c9a6fc833f4bd44f1ac5f0074.mp3"
           }
         }
       ]
     }
-  ]
+  ],
+  "hostAudio": {
+    "welcome": [
+      "assets/audio_b81ba0361395ee9ff7ac5e592c317163f16fa8602e23954d9ecf47b0eec727e1.mp3",
+      "assets/audio_a376a1bdc8efc9dca0ec03f6b2b9bf9aa41659dc30bd97939c290a779939808f.mp3"
+    ],
+    "correct": [
+      "assets/audio_f605292521e8817cba4efd559bf4751cc9a84ecff18d9fa0628c8d2d22a80ec7.mp3",
+      "assets/audio_aa387b0b29c94894e62ab04c9a4525869c642a2454a04a11fcd4abb5dbfb757b.mp3"
+    ],
+    "wrong": [
+      "assets/audio_55cf0ab5f86c1525223cbf7f93f8425e911baab32483314e55d88979244cc0f2.mp3",
+      "assets/audio_1b09c60adf5dc41b638259d7a8456421c2a9095b945f4f876d7a5b7752d2e207.mp3"
+    ]
+  }
 }

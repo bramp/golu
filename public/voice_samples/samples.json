@@ -1,0 +1,113 @@
+{
+  "text": "Vanakkam and Namaste! Welcome to the Grand Navaratri Golu Quiz! Today we are looking at Meenakshi Amman of Madurai, and Ananthasayana Vishnu reclining on Adi Shesha. Shabash, spot on!",
+  "samples": [
+    {
+      "id": "prabhat_default",
+      "label": "Prabhat (en-IN Male \u00b7 Default)",
+      "voice": "en-IN-PrabhatNeural",
+      "rate": "+0%",
+      "pitch": "+0Hz",
+      "notes": "Baseline Indian-English male voice.",
+      "src": "voice_samples/prabhat_default.mp3"
+    },
+    {
+      "id": "prabhat_upbeat",
+      "label": "Prabhat Upbeat (+10% rate, +6Hz pitch)",
+      "voice": "en-IN-PrabhatNeural",
+      "rate": "+10%",
+      "pitch": "+6Hz",
+      "notes": "Faster, brighter game-show pacing with Indian-English pronunciation.",
+      "src": "voice_samples/prabhat_upbeat.mp3"
+    },
+    {
+      "id": "prabhat_lively",
+      "label": "Prabhat Lively (+16% rate, +10Hz pitch)",
+      "voice": "en-IN-PrabhatNeural",
+      "rate": "+16%",
+      "pitch": "+10Hz",
+      "notes": "High-energy quizmaster feel.",
+      "src": "voice_samples/prabhat_lively.mp3"
+    },
+    {
+      "id": "prabhat_warm_baritone",
+      "label": "Prabhat Baritone (+6% rate, -6Hz pitch)",
+      "voice": "en-IN-PrabhatNeural",
+      "rate": "+6%",
+      "pitch": "-6Hz",
+      "notes": "Slightly deeper, theatrical stage-host resonance.",
+      "src": "voice_samples/prabhat_warm_baritone.mp3"
+    },
+    {
+      "id": "valluvar_tamil_default",
+      "label": "Valluvar (ta-IN Male \u00b7 Default)",
+      "voice": "ta-IN-ValluvarNeural",
+      "rate": "+0%",
+      "pitch": "+0Hz",
+      "notes": "Tamil male voice reading English; authentic South Indian cadence.",
+      "src": "voice_samples/valluvar_tamil_default.mp3"
+    },
+    {
+      "id": "valluvar_tamil_upbeat",
+      "label": "Valluvar Upbeat (+10% rate, +5Hz pitch)",
+      "voice": "ta-IN-ValluvarNeural",
+      "rate": "+10%",
+      "pitch": "+5Hz",
+      "notes": "Brisker Tamil-accented game-show cadence.",
+      "src": "voice_samples/valluvar_tamil_upbeat.mp3"
+    },
+    {
+      "id": "madhur_hindi_upbeat",
+      "label": "Madhur (hi-IN Male \u00b7 +8% rate, +4Hz pitch)",
+      "voice": "hi-IN-MadhurNeural",
+      "rate": "+8%",
+      "pitch": "+4Hz",
+      "notes": "Hindi male voice reading English.",
+      "src": "voice_samples/madhur_hindi_upbeat.mp3"
+    },
+    {
+      "id": "gagan_kannada_upbeat",
+      "label": "Gagan (kn-IN Male \u00b7 +8% rate, +4Hz pitch)",
+      "voice": "kn-IN-GaganNeural",
+      "rate": "+8%",
+      "pitch": "+4Hz",
+      "notes": "Kannada male voice reading English (great for Purandara Dasa / Carnatic terms).",
+      "src": "voice_samples/gagan_kannada_upbeat.mp3"
+    },
+    {
+      "id": "neerja_expressive",
+      "label": "Neerja Expressive (en-IN Female \u00b7 +5% rate)",
+      "voice": "en-IN-NeerjaExpressiveNeural",
+      "rate": "+5%",
+      "pitch": "+0Hz",
+      "notes": "Expressive Indian-English female voice.",
+      "src": "voice_samples/neerja_expressive.mp3"
+    },
+    {
+      "id": "andrew_multilingual",
+      "label": "Andrew Multilingual (en-US Male \u00b7 +6% rate)",
+      "voice": "en-US-AndrewMultilingualNeural",
+      "rate": "+6%",
+      "pitch": "+0Hz",
+      "notes": "Warm, conversational US multilingual announcer voice.",
+      "src": "voice_samples/andrew_multilingual.mp3"
+    },
+    {
+      "id": "brian_multilingual",
+      "label": "Brian Multilingual (en-US Male \u00b7 +8% rate)",
+      "voice": "en-US-BrianMultilingualNeural",
+      "rate": "+8%",
+      "pitch": "+4Hz",
+      "notes": "Upbeat, energetic quiz-show host delivery.",
+      "src": "voice_samples/brian_multilingual.mp3"
+    },
+    {
+      "id": "ryan_uk",
+      "label": "Ryan (en-GB Male \u00b7 +8% rate)",
+      "voice": "en-GB-RyanNeural",
+      "rate": "+8%",
+      "pitch": "+2Hz",
+      "notes": "Classic British quiz-show host tone.",
+      "src": "voice_samples/ryan_uk.mp3"
+    }
+  ]
+}

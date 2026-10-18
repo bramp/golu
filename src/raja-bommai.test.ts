@@ -80,5 +80,35 @@ describe("RajaBommaiHost", () => {
     host.setState("excited");
     expect(host.state).toBe("idle");
     expect(host.setTalking(true)).toBe(false);
+    host.setMouthLevel(0.8);
+  });
+
+  it("drives audio-reactive mouth and mustache via setMouthLevel()", () => {
+    const talkEvents: boolean[] = [];
+    host = new RajaBommaiHost(undefined, {
+      autoBlink: false,
+      onTalkChange: (talking) => talkEvents.push(talking),
+    });
+
+    host.setMouthLevel(0.6);
+    expect(host.isTalking).toBe(true);
+    expect(talkEvents).toEqual([true]);
+    expect(
+      host.svg.querySelector<SVGGElement>("#mouth-open-smile")?.style.opacity,
+    ).toBe("1");
+    expect(
+      host.svg.querySelector<SVGGElement>("#mouth-talk-closed")?.style.opacity,
+    ).toBe("0");
+
+    host.setMouthLevel(0);
+    expect(
+      host.svg.querySelector<SVGGElement>("#mouth-open-smile")?.style.opacity,
+    ).toBe("0");
+    expect(
+      host.svg.querySelector<SVGGElement>("#mouth-talk-closed")?.style.opacity,
+    ).toBe("1");
+
+    host.setTalking(false);
+    expect(host.isTalking).toBe(false);
   });
 });

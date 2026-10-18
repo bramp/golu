@@ -5,6 +5,18 @@ export interface Region {
   height: number;
 }
 
+export interface QuestionAudio {
+  spotlight?: string;
+  question?: string;
+  reveal?: string;
+}
+
+export interface HostAudio {
+  welcome?: string[];
+  correct?: string[];
+  wrong?: string[];
+}
+
 export interface Question {
   id: string;
   name?: string;
@@ -14,6 +26,7 @@ export interface Question {
   options: [string, string, string, string];
   correctIndex: number;
   explanation: string;
+  audio?: QuestionAudio;
 }
 
 export interface Pack {
@@ -26,6 +39,7 @@ export interface Manifest {
   version: string;
   title: string;
   image?: string;
+  hostAudio?: HostAudio;
   packs: Pack[];
 }
 
@@ -35,6 +49,29 @@ function record(value: unknown): value is Record<string, unknown> {
 
 function text(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
+}
+
+function textList(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every(text);
+}
+
+const QUESTION_AUDIO_KEYS = new Set(["spotlight", "question", "reveal"]);
+const HOST_AUDIO_KEYS = new Set(["welcome", "correct", "wrong"]);
+
+export function isValidQuestionAudio(value: unknown): value is QuestionAudio {
+  if (!record(value)) return false;
+  for (const [key, item] of Object.entries(value)) {
+    if (!QUESTION_AUDIO_KEYS.has(key) || !text(item)) return false;
+  }
+  return true;
+}
+
+export function isValidHostAudio(value: unknown): value is HostAudio {
+  if (!record(value)) return false;
+  for (const [key, item] of Object.entries(value)) {
+    if (!HOST_AUDIO_KEYS.has(key) || !textList(item)) return false;
+  }
+  return true;
 }
 
 function unitInterval(value: unknown): value is number {
@@ -77,7 +114,8 @@ function question(value: unknown): value is Question {
     typeof value.correctIndex === "number" &&
     Number.isInteger(value.correctIndex) &&
     value.correctIndex >= 0 &&
-    value.correctIndex < 4
+    value.correctIndex < 4 &&
+    (value.audio === undefined || isValidQuestionAudio(value.audio))
   );
 }
 
@@ -87,6 +125,7 @@ export function parseManifest(value: unknown): Manifest {
     !text(value.version) ||
     !text(value.title) ||
     (value.image !== undefined && !text(value.image)) ||
+    (value.hostAudio !== undefined && !isValidHostAudio(value.hostAudio)) ||
     !Array.isArray(value.packs) ||
     value.packs.length === 0
   ) {
@@ -131,6 +170,9 @@ export function parseManifest(value: unknown): Manifest {
   };
   if (typeof value.image === "string") {
     result.image = value.image;
+  }
+  if (value.hostAudio !== undefined) {
+    result.hostAudio = value.hostAudio;
   }
   return result;
 }

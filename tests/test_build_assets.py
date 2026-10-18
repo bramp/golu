@@ -260,6 +260,7 @@ def test_cli_writes_manifest_and_reports_invalid_input(
         str(photos),
         "--output",
         str(output),
+        "--no-tts",
     ]
     result = subprocess.run(command, capture_output=True, text=True, check=False)
     assert result.returncode == 0, result.stderr
@@ -274,3 +275,69 @@ def test_cli_writes_manifest_and_reports_invalid_input(
     )
     assert result.returncode == 1
     assert "quality must be between 1 and 100" in result.stderr
+
+
+def test_tts_synthesis_generates_and_caches_host_and_question_audio(
+    tmp_path: Path,
+) -> None:
+    raw = tmp_path / "raw_golu"
+    raw.mkdir()
+    Image.new("RGB", (600, 400), "#cceeff").save(raw / "golu.jpg")
+    (raw / "golu.yaml").write_text(
+        """
+title: Navaratri Golu Trivia
+pack: Our Golu Padi
+image: golu.jpg
+voice: en-IN-PrabhatNeural
+dolls:
+  - name: Marapachi Dolls
+    tts_name: Mah-rah-pah-chee Dolls
+    region: { x: 0.42, y: 0.18, width: 0.16, height: 0.22 }
+    prompt: Which wooden pair stands on the top step?
+    explanation: Carved from red sandalwood.
+  - name: Thanjavur Bommai
+    region: { x: 0.15, y: 0.45, width: 0.2, height: 0.25 }
+    explanation: Traditional bobblehead dancer.
+  - name: Dashavatara Set
+    region: { x: 0.5, y: 0.5, width: 0.35, height: 0.2 }
+    explanation: Ten avatars of Vishnu.
+  - name: Chettiar Couple
+    region: { x: 0.1, y: 0.75, width: 0.22, height: 0.2 }
+    explanation: Merchant couple with spice bowls.
+""".strip()
+    )
+
+    calls: list[tuple[str, str]] = []
+
+    def fake_synth(text: str, voice: str, destination: Path) -> None:
+        calls.append((text, voice))
+        destination.write_bytes(f"ID3-fake-mp3:{voice}:{text}".encode())
+
+    output = tmp_path / "public"
+    manifest = scan_and_build(raw, output, tts_synthesizer=fake_synth)
+
+    assert "hostAudio" in manifest
+    assert set(manifest["hostAudio"].keys()) == {"welcome", "correct", "wrong"}
+    for clips in manifest["hostAudio"].values():
+        assert len(clips) >= 1
+        for clip in clips:
+            assert clip.startswith("assets/audio_")
+            assert (output / clip).is_file()
+
+    questions = manifest["packs"][0]["questions"]
+    for q in questions:
+        assert "audio" in q
+        assert set(q["audio"].keys()) == {"question", "reveal"}
+        for clip in q["audio"].values():
+            assert clip.startswith("assets/audio_")
+            assert (output / clip).is_file()
+
+    # Check that tts_name override was used in synthesis
+    assert any("Mah-rah-pah-chee Dolls." in text for text, _ in calls)
+    initial_call_count = len(calls)
+    assert initial_call_count > 0
+
+    # Re-running without force should reuse cached audio files with 0 synthesizer calls
+    second = scan_and_build(raw, output, tts_synthesizer=fake_synth)
+    assert second == manifest
+    assert len(calls) == initial_call_count

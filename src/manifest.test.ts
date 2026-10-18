@@ -9,11 +9,56 @@ describe("manifest validation", () => {
     expect(parseManifest(demo).packs[0]?.questions).toHaveLength(3);
   });
 
+  it("accepts optional hostAudio and per-question audio fields", () => {
+    const withAudio = {
+      ...demo,
+      hostAudio: {
+        welcome: ["assets/audio_w1.mp3"],
+        correct: ["assets/audio_c1.mp3"],
+        wrong: ["assets/audio_x1.mp3"],
+      },
+      packs: [
+        {
+          ...demo.packs[0],
+          questions: demo.packs[0]!.questions.map((q) => ({
+            ...q,
+            audio: {
+              spotlight: "assets/audio_s.mp3",
+              question: "assets/audio_q.mp3",
+              reveal: "assets/audio_r.mp3",
+            },
+          })),
+        },
+      ],
+    };
+    const parsed = parseManifest(withAudio);
+    expect(parsed.hostAudio?.welcome).toEqual(["assets/audio_w1.mp3"]);
+    expect(parsed.packs[0]?.questions[0]?.audio?.spotlight).toBe(
+      "assets/audio_s.mp3",
+    );
+  });
+
   it.each([
     null,
     {},
     { ...demo, packs: [] },
+    { ...demo, hostAudio: { unknown: ["assets/a.mp3"] } },
+    { ...demo, hostAudio: { welcome: [""] } },
     { ...demo, packs: [...demo.packs, ...demo.packs] },
+    {
+      ...demo,
+      packs: [
+        {
+          ...demo.packs[0],
+          questions: [
+            {
+              ...demo.packs[0]!.questions[0],
+              audio: { spotlight: "" },
+            },
+          ],
+        },
+      ],
+    },
     {
       ...demo,
       packs: [

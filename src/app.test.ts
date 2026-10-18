@@ -66,7 +66,7 @@ describe("playable app", () => {
     click("Next doll");
     expect(root.textContent).toContain("Doll Spotlight (2 / 3)");
     expect(root.textContent).toContain("Golden Sun");
-    expect(hostStage?.dataset.hostState).toBe("asking");
+    expect(hostStage?.dataset.hostState).toBe("idle");
 
     hostStage?.click();
     expect(hostStage?.dataset.hostState).toBe("asking");
@@ -232,6 +232,89 @@ describe("playable app", () => {
         writable: true,
         value: originalRequestFullscreen,
       });
+    }
+  });
+
+  it("plays pre-generated host voiceover clips across kiosk, question, and reveal phases", () => {
+    const playedUrls: string[] = [];
+    let finishCurrentAudio: (() => void) | undefined;
+
+    class FakeAudio {
+      preload = "auto";
+      paused = false;
+      src = "";
+      onended: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      play = vi.fn(() => {
+        this.paused = false;
+        playedUrls.push(this.src);
+        finishCurrentAudio = () => {
+          this.paused = true;
+          this.onended?.();
+        };
+        return Promise.resolve();
+      });
+      pause = vi.fn(() => {
+        this.paused = true;
+      });
+    }
+
+    vi.stubGlobal("Audio", FakeAudio);
+    try {
+      cleanup();
+      const audioManifest = parseManifest({
+        ...demo,
+        hostAudio: {
+          welcome: ["assets/audio_welcome.mp3"],
+          correct: ["assets/audio_correct.mp3"],
+          wrong: ["assets/audio_wrong.mp3"],
+        },
+        packs: [
+          {
+            ...demo.packs[0],
+            questions: demo.packs[0]!.questions.map((q, idx) => ({
+              ...q,
+              audio: {
+                spotlight: `assets/audio_s_${idx}.mp3`,
+                question: `assets/audio_q_${idx}.mp3`,
+                reveal: `assets/audio_r_${idx}.mp3`,
+              },
+            })),
+          },
+        ],
+      });
+
+      cleanup = mountApp(root, audioManifest, { demo: true, base: "/golu/" });
+      const hostStage = root.querySelector<HTMLElement>(".raja-host-stage");
+
+      // Kiosk mode stays silent while cycling through dolls
+      expect(playedUrls).toHaveLength(0);
+      click("Next doll");
+      expect(playedUrls).toHaveLength(0);
+
+      // Start game -> plays welcome stinger then question 0 audio, then transitions to thinking
+      click("Start game");
+      expect(playedUrls.at(-1)).toContain("/golu/assets/audio_welcome.mp3");
+      expect(hostStage?.dataset.hostState).toBe("asking");
+      finishCurrentAudio?.();
+      expect(playedUrls.at(-1)).toContain("/golu/assets/audio_q_0.mp3");
+      finishCurrentAudio?.();
+      expect(hostStage?.dataset.hostState).toBe("thinking");
+
+      // Answer correctly -> plays correct stinger then reveal 0
+      const q0 = audioManifest.packs[0]!.questions[0]!;
+      click(q0.options[q0.correctIndex]!);
+      expect(playedUrls.at(-1)).toContain("/golu/assets/audio_correct.mp3");
+      finishCurrentAudio?.();
+      expect(playedUrls.at(-1)).toContain("/golu/assets/audio_r_0.mp3");
+
+      // Pressing M mutes voiceover
+      key("m");
+      const countBeforeMuteNext = playedUrls.length;
+      click("Next question");
+      expect(playedUrls).toHaveLength(countBeforeMuteNext);
+    } finally {
+      vi.unstubAllGlobals();
     }
   });
 });

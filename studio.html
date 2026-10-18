@@ -282,7 +282,45 @@
           </div>
         </div>
 
-        <!-- 3. Live GSAP Code Inspector -->
+        <!-- 3. Voice, Rate & Pitch Audition Deck -->
+        <div
+          class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl"
+        >
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h2
+                class="text-sm font-bold uppercase tracking-wider text-amber-300"
+              >
+                3. Voice, Rate & Pitch Auditions
+              </h2>
+              <p class="text-[11px] text-slate-400">
+                Click any preset to hear edge-tts with live Web Audio lip-sync
+              </p>
+            </div>
+            <button
+              type="button"
+              id="btn-stop-voice"
+              class="text-xs px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-rose-300 border border-slate-700 transition"
+            >
+              ⏹ Stop
+            </button>
+          </div>
+          <div
+            id="voice-samples-list"
+            class="grid grid-cols-1 gap-2 max-h-[260px] overflow-y-auto pr-1"
+          >
+            <p class="text-xs text-slate-400">Loading voice samples...</p>
+          </div>
+          <p
+            id="voice-cli-hint"
+            class="mt-3 text-[11px] code-font text-emerald-300 bg-slate-950/70 border border-slate-800 rounded-lg px-3 py-2 break-all"
+          >
+            uv run python scripts/build_assets.py --voice en-IN-PrabhatNeural
+            --rate="+16%" --pitch="+10Hz"
+          </p>
+        </div>
+
+        <!-- 4. Live GSAP Code Inspector -->
         <div
           class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl flex flex-col"
         >

@@ -1238,6 +1238,54 @@ export class RajaBommaiHost {
     return this.talking;
   }
 
+  setMouthLevel(level: number): void {
+    if (this.destroyed) return;
+    if (this.talkStopTimer) {
+      clearTimeout(this.talkStopTimer);
+      this.talkStopTimer = null;
+    }
+    if (this.talkTimeline) {
+      this.talkTimeline.kill();
+      this.talkTimeline = null;
+    }
+
+    const clamped = Math.max(
+      0,
+      Math.min(1, Number.isFinite(level) ? level : 0),
+    );
+    if (!this.talking && clamped > 0.04) {
+      this.talking = true;
+      this.onTalkChange?.(true);
+    }
+
+    gsap.set(this.qAll(["#mouth-sad", "#mouth-thinking"]), { opacity: 0 });
+
+    if (clamped < 0.04) {
+      gsap.set(this.q("#mouth-open-smile"), { opacity: 0, scaleY: 1 });
+      gsap.set(this.q("#mouth-talk-closed"), { opacity: 1 });
+      gsap.set(this.q("#mustache"), {
+        y: 0,
+        rotation: 0,
+        svgOrigin: "300 242",
+      });
+    } else {
+      const openness = 0.45 + clamped * 0.85;
+      const mustacheLift = -(1 + clamped * 4.5);
+      const mustacheTilt = clamped > 0.35 ? 2 : -1;
+      gsap.set(this.q("#mouth-talk-closed"), { opacity: 0 });
+      gsap.set(this.q("#mouth-open-smile"), {
+        opacity: 1,
+        scaleY: openness,
+        svgOrigin: "300 255",
+      });
+      gsap.set(this.q("#mustache"), {
+        y: mustacheLift,
+        rotation: mustacheTilt,
+        svgOrigin: "300 242",
+      });
+    }
+  }
+
   speakFor(durationMs = 2200): void {
     if (this.destroyed) return;
     this.setTalking(true);

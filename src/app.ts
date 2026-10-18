@@ -3,6 +3,7 @@ import type { Manifest, Question, Region } from "./manifest";
 import { RajaBommaiHost } from "./raja-bommai";
 import { SoundEffects } from "./sfx";
 import { focusFirst, installNavigation } from "./spatial-nav";
+import { HostVoicePlayer } from "./voice";
 
 function element<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -144,6 +145,21 @@ export function mountApp(
       hostStage.dataset.hostState = state;
     },
   });
+  const voice = new HostVoicePlayer(host);
+
+  function mediaUrl(path: string): string {
+    return new URL(path.replace(/^\//, ""), new URL(base, document.baseURI))
+      .href;
+  }
+
+  function pickStinger(
+    category: "welcome" | "correct" | "wrong",
+    seedIndex: number,
+  ): string | undefined {
+    const clips = manifest.hostAudio?.[category];
+    if (!clips || clips.length === 0) return undefined;
+    return clips[seedIndex % clips.length];
+  }
 
   function clearHostThinkTimer(): void {
     if (hostThinkTimer !== undefined) {
@@ -152,37 +168,78 @@ export function mountApp(
     }
   }
 
+  function advanceKioskSpotlight(): void {
+    if (game.phase !== "KIOSK_MODE" || quitting) return;
+    kioskIndex = (kioskIndex + 1) % pack.questions.length;
+    peekFullGolu = false;
+    if (!updateKioskDomInPlace()) {
+      render(false);
+    } else {
+      startKioskTimer();
+    }
+  }
+
   function syncHostState(): void {
     clearHostThinkTimer();
     if (quitting) {
+      voice.stop();
       host.setState("wave");
       return;
     }
     if (game.phase === "KIOSK_MODE") {
-      host.setState(kioskIndex === 0 ? "wave" : "asking");
-      host.speakFor(2400);
+      voice.stop();
+      host.setState(kioskIndex === 0 ? "wave" : "idle");
     } else if (game.phase === "QUESTION_ACTIVE") {
       host.setState("asking");
-      hostThinkTimer = setTimeout(() => {
-        if (game.phase === "QUESTION_ACTIVE" && !quitting) {
-          host.setState("thinking");
-        }
-      }, 2400);
-    } else if (game.phase === "ANSWER_REVEAL") {
-      if (game.selected === game.current.correctIndex) {
-        host.setState("excited");
-        host.speakFor(2200);
+      const urls: string[] = [];
+      if (game.index === 0) {
+        const welcome = pickStinger("welcome", 0);
+        if (welcome) urls.push(mediaUrl(welcome));
+      }
+      const questionClip = game.current.audio?.question;
+      if (questionClip) {
+        urls.push(mediaUrl(questionClip));
+      }
+      if (urls.length > 0 && !voice.muted) {
+        voice.playSequence(urls, {
+          fallbackDurationMs: 2400,
+          onComplete: () => {
+            if (game.phase === "QUESTION_ACTIVE" && !quitting) {
+              host.setState("thinking");
+            }
+          },
+        });
       } else {
-        host.setState("sad");
+        voice.stop();
+        hostThinkTimer = setTimeout(() => {
+          if (game.phase === "QUESTION_ACTIVE" && !quitting) {
+            host.setState("thinking");
+          }
+        }, 2400);
+      }
+    } else if (game.phase === "ANSWER_REVEAL") {
+      const isCorrect = game.selected === game.current.correctIndex;
+      host.setState(isCorrect ? "excited" : "sad");
+      const urls: string[] = [];
+      const stinger = pickStinger(isCorrect ? "correct" : "wrong", game.index);
+      if (stinger) urls.push(mediaUrl(stinger));
+      if (game.current.audio?.reveal) {
+        urls.push(mediaUrl(game.current.audio.reveal));
+      }
+      if (urls.length > 0 && !voice.muted) {
+        voice.playSequence(urls, {
+          fallbackDurationMs: isCorrect ? 2200 : 0,
+        });
+      } else {
+        voice.stop();
+        if (isCorrect) {
+          host.speakFor(2200);
+        }
       }
     } else if (game.phase === "GAME_OVER") {
+      voice.stop();
       host.setState(game.score > 0 ? "excited" : "wave");
     }
-  }
-
-  function mediaUrl(path: string): string {
-    return new URL(path.replace(/^\//, ""), new URL(base, document.baseURI))
-      .href;
   }
 
   function clearKioskTimer(): void {
@@ -326,15 +383,7 @@ export function mountApp(
     const spotlight = pack.questions[kioskIndex % pack.questions.length]!;
     const delayMs = kioskIntervalMs ?? kioskSpotlightDurationMs(spotlight);
     if (delayMs <= 0) return;
-    kioskTimer = setTimeout(() => {
-      kioskIndex = (kioskIndex + 1) % pack.questions.length;
-      peekFullGolu = false;
-      if (!updateKioskDomInPlace()) {
-        render(false);
-      } else {
-        startKioskTimer();
-      }
-    }, delayMs);
+    kioskTimer = setTimeout(advanceKioskSpotlight, delayMs);
   }
 
   function startGame(): void {
@@ -671,7 +720,21 @@ export function mountApp(
     }
   }
 
-  const onUserActivity = (): void => {
+  const onUserActivity = (event?: Event): void => {
+    voice.unlock();
+    if (
+      event instanceof KeyboardEvent &&
+      (event.key === "m" || event.key === "M") &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.altKey
+    ) {
+      const muted = voice.toggleMute();
+      sfx.muted = muted;
+      if (!muted) {
+        syncHostState();
+      }
+    }
     if (game.phase !== "KIOSK_MODE" || quitting) {
       resetInactivityTimer();
     }
@@ -688,6 +751,7 @@ export function mountApp(
     clearKioskTimer();
     clearInactivityTimer();
     clearHostThinkTimer();
+    voice.destroy();
     host.destroy();
     sfx.destroy();
     window.removeEventListener("keydown", onUserActivity);

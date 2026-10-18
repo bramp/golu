@@ -27,12 +27,29 @@ async function precacheManifestAssets(cache) {
   if (typeof manifest?.image === "string" && manifest.image) {
     assetUrls.add(`./${manifest.image.replace(/^\//, "")}`);
   }
+  if (manifest?.hostAudio && typeof manifest.hostAudio === "object") {
+    for (const clips of Object.values(manifest.hostAudio)) {
+      if (!Array.isArray(clips)) continue;
+      for (const clip of clips) {
+        if (typeof clip === "string" && clip) {
+          assetUrls.add(`./${clip.replace(/^\//, "")}`);
+        }
+      }
+    }
+  }
   if (Array.isArray(manifest?.packs)) {
     for (const pack of manifest.packs) {
       if (!Array.isArray(pack?.questions)) continue;
       for (const question of pack.questions) {
         if (typeof question?.image === "string" && question.image) {
           assetUrls.add(`./${question.image.replace(/^\//, "")}`);
+        }
+        if (question?.audio && typeof question.audio === "object") {
+          for (const clip of Object.values(question.audio)) {
+            if (typeof clip === "string" && clip) {
+              assetUrls.add(`./${clip.replace(/^\//, "")}`);
+            }
+          }
         }
       }
     }
