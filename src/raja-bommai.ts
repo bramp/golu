@@ -589,6 +589,42 @@ export interface RajaBommaiOptions {
   onTalkChange?: (talking: boolean) => void;
 }
 
+function ensureSvgTransformConsolidate(svg: SVGSVGElement): void {
+  const baseVal = svg.transform?.baseVal as
+    | (SVGTransformList & {
+        consolidate?: () => {
+          matrix: {
+            a: number;
+            b: number;
+            c: number;
+            d: number;
+            e: number;
+            f: number;
+          };
+        };
+      })
+    | undefined;
+  if (!baseVal || typeof baseVal.consolidate === "function") return;
+  const proto = Object.getPrototypeOf(baseVal) as {
+    consolidate?: (this: SVGTransformList) => {
+      matrix: {
+        a: number;
+        b: number;
+        c: number;
+        d: number;
+        e: number;
+        f: number;
+      };
+    };
+  };
+  proto.consolidate = function consolidate(this: SVGTransformList) {
+    if (this.numberOfItems > 0) {
+      return this.getItem(0);
+    }
+    return { matrix: { a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 } };
+  };
+}
+
 export class RajaBommaiHost {
   readonly element: HTMLElement;
   readonly svg: SVGSVGElement;
@@ -614,6 +650,7 @@ export class RajaBommaiHost {
       this.element.innerHTML = RAJA_BOMMAI_SVG;
       this.svg = this.element.querySelector<SVGSVGElement>("svg")!;
     }
+    ensureSvgTransformConsolidate(this.svg);
 
     this.setState(options.initialState ?? "idle");
     if (options.autoBlink !== false) {

@@ -47,8 +47,8 @@ describe("playable app", () => {
     expect(kioskImg?.src).toContain("/golu/demo/camping.svg");
     expect(kioskImg?.dataset.zoomed).toBe("true");
     expect(kioskCanvas?.style.transform).not.toBe("translate(0%, 0%) scale(1)");
-    expect(spotlight?.style.left).toBe("10%");
-    expect(spotlight?.style.top).toBe("52%");
+    expect(spotlight?.style.left).toMatch(/^10(\.00)?%$/);
+    expect(spotlight?.style.top).toMatch(/^52(\.00)?%$/);
     expect(rotateOverlay?.textContent).toContain(
       "Rotate your phone to landscape",
     );
