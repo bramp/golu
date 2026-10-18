@@ -33,7 +33,7 @@
   - [x] Fetch `/questions.json` on startup (falling back to `/demo/questions.json` on 404) and validate region coordinates.
   - [x] Detect URL query parameters (`?kodi=1`) to toggle HTPC-specific UI controls (such as the **"Quit to Kodi"** button).
 - [x] **Game State Machine (`src/game.ts`, `src/app.ts`)**
-  - [x] Implement `KIOSK_MODE` state (no title menu): Continuously pan and zoom across dolls on the full Golu image in a kiosk explainer loop, showing each doll's name and `explanation` with a prominent **"Start game"** button ready at all times.
+  - [x] Implement `KIOSK_MODE` state (no title menu): Continuously pan and zoom across dolls on the full Golu image in a kiosk explainer loop, showing each doll's name and `explanation` (with word-count-paced reading time) and a prominent **"Start game"** button ready at all times.
   - [x] Implement `QUESTION_ACTIVE` state: Zoom into the current doll's `region` with a spotlight highlight frame and full-Golu peek toggle, track current question index, and lock out duplicate submissions.
   - [x] Implement `ANSWER_REVEAL` state: Highlight selected vs. correct button, display the `explanation` caption, increment score, and focus the **"Next question"** button.
   - [x] Implement `GAME_OVER` state: Zoom back out to the full Golu display, show final score, and offer **"Play again"** / **"Back to kiosk"** actions.

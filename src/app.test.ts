@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import demo from "../public/demo/questions.json";
-import { mountApp } from "./app";
+import { kioskSpotlightDurationMs, mountApp } from "./app";
 import { parseManifest } from "./manifest";
 
 const manifest = parseManifest(demo);
@@ -107,6 +107,20 @@ describe("playable app", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it("scales default kiosk spotlight duration with explanation word count", () => {
+    const shortQuestion = manifest.packs[0]!.questions[1]!;
+    const longQuestion = {
+      ...shortQuestion,
+      explanation: Array(50).fill("tradition").join(" "),
+    };
+    expect(kioskSpotlightDurationMs(shortQuestion)).toBeGreaterThanOrEqual(
+      10000,
+    );
+    expect(kioskSpotlightDurationMs(longQuestion)).toBeGreaterThan(
+      kioskSpotlightDurationMs(shortQuestion),
+    );
   });
 
   it("moves focus in a 2x2 grid and keeps a single tab stop", () => {

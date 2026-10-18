@@ -51,6 +51,26 @@ export function regionTransform(region?: Region): string {
   return `translate(${translateX.toFixed(2)}%, ${translateY.toFixed(2)}%) scale(${scale.toFixed(2)})`;
 }
 
+const BASE_KIOSK_VIEW_MS = 6000;
+const MS_PER_KIOSK_WORD = 350;
+const MIN_KIOSK_DURATION_MS = 10000;
+const MAX_KIOSK_DURATION_MS = 30000;
+
+export function kioskSpotlightDurationMs(question: Question): number {
+  const dollName = question.name ?? question.options[question.correctIndex]!;
+  const words = `${dollName} ${question.explanation}`
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
+  return Math.min(
+    MAX_KIOSK_DURATION_MS,
+    Math.max(
+      MIN_KIOSK_DURATION_MS,
+      BASE_KIOSK_VIEW_MS + words * MS_PER_KIOSK_WORD,
+    ),
+  );
+}
+
 export function mountApp(
   root: HTMLElement,
   manifest: Manifest,
@@ -58,7 +78,7 @@ export function mountApp(
     demo = false,
     kodi = false,
     base = "./",
-    kioskIntervalMs = 8000,
+    kioskIntervalMs,
   }: {
     demo?: boolean;
     kodi?: boolean;
@@ -71,7 +91,7 @@ export function mountApp(
   let kioskIndex = 0;
   let quitting = false;
   let peekFullGolu = false;
-  let kioskTimer: ReturnType<typeof setInterval> | undefined;
+  let kioskTimer: ReturnType<typeof setTimeout> | undefined;
 
   function mediaUrl(path: string): string {
     return new URL(path.replace(/^\//, ""), new URL(base, document.baseURI))
@@ -80,7 +100,7 @@ export function mountApp(
 
   function clearKioskTimer(): void {
     if (kioskTimer !== undefined) {
-      clearInterval(kioskTimer);
+      clearTimeout(kioskTimer);
       kioskTimer = undefined;
     }
   }
@@ -198,15 +218,19 @@ export function mountApp(
 
   function startKioskTimer(): void {
     clearKioskTimer();
-    if (game.phase === "KIOSK_MODE" && !quitting && kioskIntervalMs > 0) {
-      kioskTimer = setInterval(() => {
-        kioskIndex = (kioskIndex + 1) % pack.questions.length;
-        peekFullGolu = false;
-        if (!updateKioskDomInPlace()) {
-          render(false);
-        }
-      }, kioskIntervalMs);
-    }
+    if (game.phase !== "KIOSK_MODE" || quitting) return;
+    const spotlight = pack.questions[kioskIndex % pack.questions.length]!;
+    const delayMs = kioskIntervalMs ?? kioskSpotlightDurationMs(spotlight);
+    if (delayMs <= 0) return;
+    kioskTimer = setTimeout(() => {
+      kioskIndex = (kioskIndex + 1) % pack.questions.length;
+      peekFullGolu = false;
+      if (!updateKioskDomInPlace()) {
+        render(false);
+      } else {
+        startKioskTimer();
+      }
+    }, delayMs);
   }
 
   function startGame(): void {
@@ -253,6 +277,9 @@ export function mountApp(
           : "Photo for this question";
       applyStageState(stage, activeQuestion, altText, !peekFullGolu, true);
       zoomBtn.textContent = peekFullGolu ? "Zoom to doll" : "Show full Golu";
+      if (game.phase === "KIOSK_MODE") {
+        startKioskTimer();
+      }
       return;
     }
     render(false);
