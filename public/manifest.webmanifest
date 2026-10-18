@@ -7,5 +7,12 @@
   "display": "fullscreen",
   "orientation": "any",
   "background_color": "#080e18",
-  "theme_color": "#080e18"
+  "theme_color": "#080e18",
+  "icons": [
+    {
+      "src": "./favicon.ico",
+      "sizes": "16x16 32x32 48x48",
+      "type": "image/x-icon"
+    }
+  ]
 }

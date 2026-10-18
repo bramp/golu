@@ -1,7 +1,7 @@
 const CACHE_NAME = "golu-cache-v1";
 
 async function precacheManifestAssets(cache) {
-  await cache.addAll(["./", "./index.html"]);
+  await cache.addAll(["./", "./index.html", "./favicon.ico"]);
 
   let manifestUrl = "./questions.json";
   let response = await fetch(manifestUrl, {
