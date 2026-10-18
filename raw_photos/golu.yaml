@@ -21,15 +21,15 @@ dolls:
   explanation: A black stone-style sculpture depicting a reclining deity resting on a serpent bed. In
     South Indian temples like Srirangam, Vishnu reclines on the multi-headed serpent Adi Shesha, symbolizing
     calm awareness amidst the cosmic ocean of creation.
-- name: Radha & Krishna with Cow
+- name: Radha & Krishna
   region:
     x: 0.245
     y: 0.082
     width: 0.081
     height: 0.15
-  explanation: Lord Krishna playing his flute alongside Radha, with a small calf resting at their feet.
-    Their pairing represents the union of the individual soul (Jivatma) with the divine (Paramatma), a
-    central theme of Bhakti poetry.
+  explanation: Lord Krishna playing his flute alongside Radha, with a small reclining baby Krishna resting
+    playfully at their feet. Their pairing represents the union of the individual soul (Jivatma) with
+    the divine (Paramatma), a central theme of Bhakti poetry.
 - name: Rama Darbar (Hanuman, Sita, Rama, Lakshmana)
   region:
     x: 0.321
@@ -46,9 +46,9 @@ dolls:
     y: 0.159
     width: 0.047
     height: 0.075
-  explanation: An ornate brass figurine placed at the feet of the Rama Darbar and Vishnu dolls. Brass
-    idols (often passed down across generations as family heirlooms) are frequently integrated alongside
-    clay/papier-mâché Golu dolls.
+  explanation: An ornate winged brass figurine placed in front of the Rama Darbar. Brass idols (often
+    passed down across generations as family heirlooms) are frequently integrated alongside clay and papier-mâché
+    Golu dolls.
 - name: Saraswati (Standing with Veena)
   region:
     x: 0.569
@@ -64,8 +64,8 @@ dolls:
     y: 0.088
     width: 0.048
     height: 0.136
-  explanation: The only female saint among the twelve Alvars (poet-saints of South India), recognizable
-    by her classic side-bun hairstyle (Andal Kondai) and parrot. Her Tamil devotional poem, the Thiruppavai
+  explanation: The only female saint among the twelve Alvars (poet-saints of South India), depicted here
+    in an orange-red sari with heavy garlands and a tall crown. Her Tamil devotional poem, the Thiruppavai
     (30 stanzas), is sung every morning during the Tamil month of Margazhi.
 - name: Goddess Parvati / Karumari Amman
   region:
@@ -73,19 +73,18 @@ dolls:
     y: 0.019
     width: 0.057
     height: 0.204
-  explanation: A tall, crowned four-armed form of the Divine Mother holding sacred attributes. Because
-    Navaratri celebrates the feminine divine (Shakti), placing a prominent Amman doll on the highest step
-    anchors the spiritual theme of the display.
-- name: Brass Diya with Sacred Weapons (Shankha, Chakra, Gada)
+  explanation: A tall, crowned four-armed form of the Divine Mother with lotus-like hands and a trident
+    behind her. Because Navaratri celebrates the feminine divine (Shakti), placing a prominent Amman doll
+    on the highest step anchors the spiritual theme of the display.
+- name: Ornate Brass Diya (Oil Lamp)
   region:
     x: 0.706
     y: 0.063
-    width: 0.087
+    width: 0.062
     height: 0.161
-  explanation: A decorative brass lamp surrounded by the emblems of Lord Vishnu—conch, discus, mace, and
-    lotus—framed by two silver Kuthu Vilakku lamps on either end of the shelf. Lighting lamps around the
-    Golu every evening invites auspiciousness before neighbors gather to sing devotional songs and exchange
-    tamboolam.
+  explanation: A decorative brass oil lamp with an arched ornamental backing, flanked by silver Kuthu
+    Vilakku lamps on the top shelf. Lighting lamps around the Golu every evening invites auspiciousness
+    before neighbors gather to sing devotional songs and exchange tamboolam.
 - name: Ashta Lakshmi Set (With Padmavati & Saraswati)
   region:
     x: 0.128
@@ -103,67 +102,65 @@ dolls:
     y: 0.258
     width: 0.103
     height: 0.161
-  explanation: The centerpiece of the second row, showing Goddess Lakshmi flanked by two white elephants
-    pouring sacred water over her from golden pots. Gaja Lakshmi symbolizes royal power, abundance, and
-    the fertility brought by monsoon rains (historically associated with clouds and elephants).
+  explanation: The centerpiece of the second row, showing Goddess Lakshmi seated on a lotus and flanked
+    by two white elephants holding pink lotuses. Gaja Lakshmi symbolizes royal power, abundance, and the
+    fertility brought by monsoon rains (historically associated with clouds and elephants).
 - name: Santana Lakshmi
   region:
     x: 0.48
     y: 0.261
     width: 0.068
     height: 0.16
-  explanation: Goddess Lakshmi seated with a child on her lap, representing the wealth of family, healthy
-    children, and lineage. Unlike other forms of Lakshmi who have four arms, Santana Lakshmi is often
-    depicted with six arms, holding two kalashas (water pots), a sword, a shield, and protecting the child.
+  explanation: A multi-armed form of Goddess Lakshmi seated on a lotus with a child on her lap, representing
+    the wealth of family, healthy children, and lineage.
 - name: Dashavatara Set (Ten Avatars of Vishnu)
   region:
-    x: 0.127
+    x: 0.105
     y: 0.425
-    width: 0.66
+    width: 0.745
     height: 0.207
-  explanation: 'The ten primary incarnations of Lord Vishnu spanning cosmic history, from left to right:
-    Matsya (fish), Kurma (tortoise), Varaha (boar), Narasimha (half-man/half-lion), Vamana (dwarf sage),
-    Parashurama (warrior with axe), Rama (prince with bow), Balarama (with plow), Krishna (playing flute),
-    and Kalki/Hayagriva (horse-headed form). Many commentators note a striking parallel between the Dashavatara
-    sequence and biological evolution: starting in water (Matsya), moving to amphibians (Kurma), land
-    mammals (Varaha), half-human (Narasimha), and developing into complex human societies.'
-- name: Pandharpur Bhakti Saints & Dasa Koota
+  explanation: 'The back row of the third tier displays the ten primary incarnations of Lord Vishnu spanning
+    cosmic history, including Matsya (fish), Kurma (tortoise), Varaha (boar), Narasimha (half-man/half-lion),
+    Vamana, Parashurama, Rama, Balarama, Krishna, and Kalki/Hayagriva. Many commentators note a striking
+    parallel between the Dashavatara sequence and biological evolution: starting in water, moving to amphibians
+    and land mammals, and developing into human societies.'
+- name: Bhakti Saints & Poet-Musicians
   region:
-    x: 0.161
+    x: 0.39
     y: 0.468
-    width: 0.389
+    width: 0.265
     height: 0.189
-  explanation: 'A collection of revered poet-saints in front of the Dashavatara: includes Purandara Dasa
-    / Tukaram (with tambura and chipla), Raghavendra Swamy (seated in yellow robes), Kanaka Dasa, and
-    Tyagaraja / Narada. Purandara Dasa is celebrated as the ''Pitamaha'' (grandfather) of Carnatic music
-    for structuring the beginner lessons (Sarali Varisai) still taught to music students today.'
+  explanation: A cluster of revered poet-saints in front of the Dashavatara, including a seated sage in
+    yellow robes and standing saint-musicians holding string instruments (tambura/veena) and hand cymbals.
+    Saint-composers like Purandara Dasa and Tyagaraja shaped the devotional traditions of Carnatic music
+    commonly sung in front of the Golu.
 - name: Vithoba (Vitthala) and Rakhumai
   region:
     x: 0.655
     y: 0.499
-    width: 0.095
+    width: 0.16
     height: 0.147
-  explanation: Lord Vitthala (a form of Krishna worshipped in Pandharpur, Maharashtra) standing with his
-    hands on his hips on a brick, alongside his consort Rakhumai (Rukmini). According to legend, Vitthala
-    stood on a brick (vit) tossed out by his devotee Pundalik, who asked the Lord to wait while he finished
-    serving his elderly parents.
-- name: Rajasthani Dandiya / Garba & Folk Musicians
+  explanation: Lord Vitthala (a form of Krishna worshipped in Pandharpur, Maharashtra) standing in his
+    iconic hands-on-hips posture alongside his consort Rakhumai (Rukmini) in a green sari. According to
+    legend, Vitthala stood waiting with his hands on his hips for his devotee Pundalik, who asked the
+    Lord to wait while he finished serving his elderly parents.
+- name: Folk Musicians, Dancers & Village Scene
   region:
     x: 0.087
     y: 0.771
     width: 0.325
     height: 0.151
-  explanation: A lively village scene featuring miniature folk musicians playing drums and instruments
-    on the left, dancers with dandiya sticks on the right, and a centerpiece of Radha and Krishna playing
-    chess. The bottom tiers of a traditional Golu always transition from gods and saints to everyday human
-    life, community festivities, and cultural arts—reflecting the cosmic hierarchy.
+  explanation: A lively village scene featuring miniature folk musicians playing drums and string instruments,
+    festive dancers, and a central devotional vignette on a checkered platform. The bottom tiers of a
+    traditional Golu transition from gods and saints to everyday human life, community festivities, and
+    cultural arts—reflecting the cosmic hierarchy.
 - name: Lord Ganesha Idols
   region:
     x: 0.405
     y: 0.654
     width: 0.119
     height: 0.213
-  explanation: A large four-armed seated Ganesha flanked by a smaller Ganesha playing the mridangam drum.
+  explanation: A large four-armed standing Ganesha alongside a smaller seated Ganesha playing a drum.
     Even before setting up the Golu steps on Mahalaya Amavasya, a small Ganesha (often made of turmeric)
     is worshipped first to ensure the festival proceeds without obstacles.
 - name: Carved Elephant Parade

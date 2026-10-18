@@ -11,6 +11,5 @@ coverage/
 .env.*
 !.env.example
 raw_photos/*
-!raw_photos/.gitkeep
+!raw_photos/README.md
 !raw_photos/golu.yaml
-!raw_photos/facts.json

@@ -1,4 +1,4 @@
-.PHONY: all setup deps dev format analyze analyze-web analyze-python test test-ci build assets preview
+.PHONY: all setup deps dev format analyze analyze-web analyze-python test test-ci build assets review-crops preview
 
 all: analyze test build
 
@@ -39,6 +39,9 @@ build:
 
 assets:
 	uv run python scripts/build_assets.py
+
+review-crops:
+	uv run python scripts/crop_regions.py
 
 preview:
 	npm run preview

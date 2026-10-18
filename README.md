@@ -26,8 +26,9 @@ src/                     Vanilla TypeScript app, kiosk/trivia state machine, Raj
 public/demo/             Fallback demo manifest and illustration with region coordinates
 public/questions.json    Generated question manifest
 public/assets/           Generated WebP master Golu image (EXIF/GPS stripped)
-raw_photos/              Input Golu config (`golu.yaml`) and local source photos (`*.jpg` gitignored)
+raw_photos/              Input Golu config (`golu.yaml`), authoring/fact-check guide (`README.md`), and local source photos (`*.jpg` gitignored)
 scripts/build_assets.py  Offline Python CLI
+scripts/crop_regions.py  Generates high-res review crops (`make review-crops`) for fact-checking `golu.yaml`
 tests/                   Asset pipeline tests
 .github/                 CI and dependency update configuration
 ```
@@ -109,17 +110,18 @@ for `questions.json` or publish a generated manifest.
 
 ## Development commands
 
-| Command        | Purpose                                   |
-| -------------- | ----------------------------------------- |
-| `make setup`   | Install locked dependencies and Git hook  |
-| `make dev`     | Start Vite development server             |
-| `make assets`  | Build private Golu photo into `public/`   |
-| `make format`  | Format web/Python files and fix Ruff lint |
-| `make analyze` | Lint, type-check, and check formatting    |
-| `make test`    | Run frontend and pipeline tests           |
-| `make build`   | Type-check and build static `dist/`       |
-| `make preview` | Serve the production build locally        |
-| `make test-ci` | Run the same checks as GitHub Actions     |
+| Command             | Purpose                                          |
+| ------------------- | ------------------------------------------------ |
+| `make setup`        | Install locked dependencies and Git hook         |
+| `make dev`          | Start Vite development server                    |
+| `make assets`       | Build private Golu photo into `public/`          |
+| `make review-crops` | Generate high-res region crops for fact-checking |
+| `make format`       | Format web/Python files and fix Ruff lint        |
+| `make analyze`      | Lint, type-check, and check formatting           |
+| `make test`         | Run frontend and pipeline tests                  |
+| `make build`        | Type-check and build static `dist/`              |
+| `make preview`      | Serve the production build locally               |
+| `make test-ci`      | Run the same checks as GitHub Actions            |
 
 Pre-commit runs hygiene checks, formatting checks, language-specific analysis, and
 tests. Run `pre-commit run --all-files` after staging new files to check everything.
