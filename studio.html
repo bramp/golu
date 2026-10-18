@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Raja Bommai — GSAP Character Animation Studio</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #0f172a;
+        color: #f8fafc;
+      }
+      .code-font {
+        font-family: "Fira Code", monospace;
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #1e293b;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #475569;
+        border-radius: 3px;
+      }
+      .state-btn.active {
+        border-color: #f59e0b;
+        background: linear-gradient(
+          135deg,
+          rgba(245, 158, 11, 0.2),
+          rgba(217, 119, 6, 0.08)
+        );
+        box-shadow:
+          0 0 0 1px rgba(245, 158, 11, 0.4),
+          0 4px 12px rgba(0, 0, 0, 0.25);
+      }
+      .raja-svg {
+        width: 100%;
+        height: 100%;
+        max-height: 100%;
+        user-select: none;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <!-- Top Header -->
+    <header
+      class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-20 px-4 lg:px-8 py-3"
+    >
+      <div
+        class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3"
+      >
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-rose-600 flex items-center justify-center shadow-lg shadow-amber-500/20 font-extrabold text-slate-950 text-xl"
+          >
+            G
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-lg font-bold tracking-tight text-white">
+                Raja Bommai — Golu Host Rig
+              </h1>
+              <span
+                class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30"
+              >
+                SVG + GSAP 3
+              </span>
+            </div>
+            <p class="text-xs text-slate-400">
+              Pure TypeScript Character Animation Controller (No Rive/Lottie
+              needed)
+            </p>
+          </div>
+        </div>
+
+        <!-- Speech Bubble / Host Prompt Preview -->
+        <div
+          class="flex items-center gap-3 bg-slate-800/90 border border-slate-700 px-4 py-2 rounded-xl"
+        >
+          <span
+            class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"
+            id="status-dot"
+          ></span>
+          <p
+            id="host-dialogue"
+            class="text-xs sm:text-sm font-medium text-amber-100 italic"
+          >
+            "Vanakkam & Namaste! Welcome to the Grand Navaratri Golu Quiz!"
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main
+      class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start"
+    >
+      <!-- LEFT COLUMN: Interactive SVG Stage (7 Cols) -->
+      <section
+        class="lg:col-span-7 flex flex-col bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl"
+      >
+        <!-- Stage Top Bar -->
+        <div
+          class="px-4 py-2.5 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400"
+        >
+          <div class="flex items-center gap-2">
+            <span class="font-semibold text-slate-200">STAGE VIEWPORT</span>
+            <span>•</span>
+            <span id="active-state-badge" class="text-amber-400 font-medium"
+              >State: Idle / Breathing</span
+            >
+          </div>
+          <div class="flex items-center gap-3">
+            <label class="flex items-center gap-1.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                id="toggle-pivots"
+                class="rounded bg-slate-800 border-slate-600 text-amber-500 focus:ring-0"
+              />
+              <span>Show Rig Pivots</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- SVG Container mounted by RajaBommaiHost -->
+        <div
+          id="raja-stage"
+          class="relative w-full aspect-[4/5] max-h-[640px] flex items-center justify-center bg-gradient-to-b from-slate-900 via-indigo-950/40 to-slate-900 p-2 overflow-hidden"
+        ></div>
+      </section>
+
+      <!-- RIGHT COLUMN: Animation Control Deck & Code Inspector (5 Cols) -->
+      <section class="lg:col-span-5 flex flex-col gap-5">
+        <!-- 1. Primary State Triggers -->
+        <div
+          class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl"
+        >
+          <div class="flex items-center justify-between mb-3">
+            <h2
+              class="text-sm font-bold uppercase tracking-wider text-slate-300"
+            >
+              1. Game Show States
+            </h2>
+            <span class="text-xs text-slate-400">Click to switch timeline</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <!-- Idle -->
+            <button
+              type="button"
+              id="btn-idle"
+              class="state-btn active flex items-center gap-3 p-3 rounded-xl border border-slate-700/80 bg-slate-800/60 hover:bg-slate-800 text-left transition"
+            >
+              <span class="text-2xl">🧘🏽‍♂️</span>
+              <div>
+                <div class="text-sm font-bold text-white">Idle / Breathing</div>
+                <div class="text-[11px] text-slate-400">
+                  Pedestal bob & blink
+                </div>
+              </div>
+            </button>
+
+            <!-- Wave / Welcome -->
+            <button
+              type="button"
+              id="btn-wave"
+              class="state-btn flex items-center gap-3 p-3 rounded-xl border border-slate-700/80 bg-slate-800/60 hover:bg-slate-800 text-left transition"
+            >
+              <span class="text-2xl">👋🏽</span>
+              <div>
+                <div class="text-sm font-bold text-white">Wave / Welcome</div>
+                <div class="text-[11px] text-slate-400">
+                  Arm wave & torso sway
+                </div>
+              </div>
+            </button>
+
+            <!-- Asking Question / Talking -->
+            <button
+              type="button"
+              id="btn-asking"
+              class="state-btn flex items-center gap-3 p-3 rounded-xl border border-slate-700/80 bg-slate-800/60 hover:bg-slate-800 text-left transition"
+            >
+              <span class="text-2xl">🎙️</span>
+              <div>
+                <div class="text-sm font-bold text-white">Ask Question</div>
+                <div class="text-[11px] text-slate-400">
+                  Mic raise & lip-sync
+                </div>
+              </div>
+            </button>
+
+            <!-- Thinking / Suspense -->
+            <button
+              type="button"
+              id="btn-thinking"
+              class="state-btn flex items-center gap-3 p-3 rounded-xl border border-slate-700/80 bg-slate-800/60 hover:bg-slate-800 text-left transition"
+            >
+              <span class="text-2xl">🤔</span>
+              <div>
+                <div class="text-sm font-bold text-white">Suspense / Wait</div>
+                <div class="text-[11px] text-slate-400">
+                  Eye shift & brow raise
+                </div>
+              </div>
+            </button>
+
+            <!-- Excited / Correct Answer -->
+            <button
+              type="button"
+              id="btn-excited"
+              class="state-btn flex items-center gap-3 p-3 rounded-xl border border-slate-700/80 bg-slate-800/60 hover:bg-slate-800 text-left transition"
+            >
+              <span class="text-2xl">🎉</span>
+              <div>
+                <div class="text-sm font-bold text-emerald-300">
+                  Correct Answer!
+                </div>
+                <div class="text-[11px] text-slate-400">
+                  Jump, star eyes & glow
+                </div>
+              </div>
+            </button>
+
+            <!-- Sad / Wrong Answer -->
+            <button
+              type="button"
+              id="btn-sad"
+              class="state-btn flex items-center gap-3 p-3 rounded-xl border border-slate-700/80 bg-slate-800/60 hover:bg-slate-800 text-left transition"
+            >
+              <span class="text-2xl">🥺</span>
+              <div>
+                <div class="text-sm font-bold text-rose-300">Wrong Answer</div>
+                <div class="text-[11px] text-slate-400">
+                  Droop, frown & head shake
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Secondary Additive Controls (Lip-Sync & Blink) -->
+        <div
+          class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl"
+        >
+          <h2
+            class="text-sm font-bold uppercase tracking-wider text-slate-300 mb-3"
+          >
+            2. Additive Micro-Animations
+          </h2>
+          <div class="flex flex-wrap items-center gap-3">
+            <!-- Toggle Lip Sync -->
+            <button
+              type="button"
+              id="btn-talk-toggle"
+              class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-semibold text-xs border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 transition"
+            >
+              <span
+                id="talk-indicator"
+                class="w-2 h-2 rounded-full bg-slate-500"
+              ></span>
+              <span>Toggle Lip-Sync Talking</span>
+            </button>
+
+            <!-- Trigger Instant Blink -->
+            <button
+              type="button"
+              id="btn-blink"
+              class="py-2.5 px-4 rounded-xl font-semibold text-xs border border-slate-700 bg-slate-800 hover:bg-slate-700 text-amber-300 transition"
+            >
+              👁️ Trigger Blink
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Live GSAP Code Inspector -->
+        <div
+          class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl flex flex-col"
+        >
+          <div
+            class="px-4 py-3 bg-slate-950/70 border-b border-slate-800 flex items-center justify-between"
+          >
+            <div>
+              <h2
+                class="text-xs font-bold uppercase tracking-wider text-amber-400"
+              >
+                Live GSAP Code Inspector
+              </h2>
+              <p class="text-[11px] text-slate-400">
+                Copy this timeline logic directly into your web game
+              </p>
+            </div>
+            <button
+              type="button"
+              id="copy-btn"
+              class="text-xs px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition"
+            >
+              Copy Snippet
+            </button>
+          </div>
+          <pre
+            class="p-4 text-xs code-font text-emerald-300 overflow-x-auto max-h-[250px] leading-relaxed"
+          ><code id="code-inspector"></code></pre>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="/src/studio.ts"></script>
+  </body>
+</html>

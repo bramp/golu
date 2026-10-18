@@ -10,8 +10,8 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "format": "prettier --write \"src/**/*.{ts,css}\" \"public/demo/**/*.json\" \".github/**/*.yml\" \"*.{js,json,md,ts}\" index.html .pre-commit-config.yaml",
-    "format:check": "prettier --check \"src/**/*.{ts,css}\" \"public/demo/**/*.json\" \".github/**/*.yml\" \"*.{js,json,md,ts}\" index.html .pre-commit-config.yaml",
+    "format": "prettier --write \"src/**/*.{ts,css}\" \"public/demo/**/*.json\" \".github/**/*.yml\" \"*.{js,json,md,ts}\" index.html studio.html .pre-commit-config.yaml",
+    "format:check": "prettier --check \"src/**/*.{ts,css}\" \"public/demo/**/*.json\" \".github/**/*.yml\" \"*.{js,json,md,ts}\" index.html studio.html .pre-commit-config.yaml",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -27,5 +27,8 @@
     "typescript-eslint": "^8.71.2",
     "vite": "^8.3.4",
     "vitest": "^5.0.5"
+  },
+  "dependencies": {
+    "gsap": "^3.15.0"
   }
 }
