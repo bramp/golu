@@ -1,10 +1,10 @@
 import type { Pack, Question } from "./manifest";
 
 export type Phase =
-  "TITLE_SCREEN" | "QUESTION_ACTIVE" | "ANSWER_REVEAL" | "GAME_OVER";
+  "KIOSK_MODE" | "QUESTION_ACTIVE" | "ANSWER_REVEAL" | "GAME_OVER";
 
 export class Game {
-  phase: Phase = "TITLE_SCREEN";
+  phase: Phase = "KIOSK_MODE";
   questions: Question[] = [];
   index = 0;
   score = 0;
@@ -16,7 +16,7 @@ export class Game {
     return question;
   }
 
-  start(pack: Pack, length: number): void {
+  start(pack: Pack, length: number = pack.questions.length): void {
     if (
       !Number.isInteger(length) ||
       length < 1 ||
@@ -58,11 +58,15 @@ export class Game {
     }
   }
 
-  menu(): void {
-    this.phase = "TITLE_SCREEN";
+  kiosk(): void {
+    this.phase = "KIOSK_MODE";
     this.questions = [];
     this.score = 0;
     this.index = 0;
     this.selected = null;
+  }
+
+  menu(): void {
+    this.kiosk();
   }
 }

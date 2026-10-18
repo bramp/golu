@@ -1,6 +1,7 @@
 {
   "version": "demo-1",
   "title": "Golu",
+  "image": "demo/camping.svg",
   "packs": [
     {
       "id": "demo",
@@ -8,23 +9,29 @@
       "questions": [
         {
           "id": "demo-tent",
+          "name": "Orange Tent",
           "image": "demo/camping.svg",
+          "region": { "x": 0.1, "y": 0.52, "width": 0.34, "height": 0.38 },
           "prompt": "What color is the tent?",
           "options": ["Orange", "Blue", "Purple", "Green"],
           "correctIndex": 0,
-          "explanation": "An orange tent beside a quiet mountain lake. These illustrations are demo content; add your own photos to make it personal."
+          "explanation": "An orange tent beside a quiet mountain lake. These illustrations are demo content; add your own Golu photo and doll regions to make it personal."
         },
         {
           "id": "demo-sky",
+          "name": "Golden Sun",
           "image": "demo/camping.svg",
+          "region": { "x": 0.65, "y": 0.08, "width": 0.24, "height": 0.28 },
           "prompt": "What's shining above the mountains?",
           "options": ["The Moon", "The Sun", "A satellite", "A streetlight"],
           "correctIndex": 1,
-          "explanation": "A golden sun lights up this illustrated campsite."
+          "explanation": "A golden sun lights up this illustrated scene."
         },
         {
           "id": "demo-water",
+          "name": "Mountain Lake",
           "image": "demo/camping.svg",
+          "region": { "x": 0.52, "y": 0.6, "width": 0.42, "height": 0.32 },
           "prompt": "Where have we pitched our tent?",
           "options": [
             "In the city",
@@ -33,7 +40,7 @@
             "In a desert"
           ],
           "correctIndex": 2,
-          "explanation": "Mountains, water, and a tent: a perfect imaginary weekend."
+          "explanation": "Mountains, water, and a tent: each question zooms into a different region of the same image."
         }
       ]
     }

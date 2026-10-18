@@ -172,6 +172,75 @@ def test_heic_and_transparent_png_inputs(tmp_path: Path) -> None:
                 assert image.getpixel((0, 0))[3] == 0
 
 
+def test_single_photo_golu_config_builds_regions_and_questions(
+    tmp_path: Path,
+) -> None:
+    raw = tmp_path / "raw_golu"
+    raw.mkdir()
+    Image.new("RGB", (2400, 1600), "#cceeff").save(raw / "golu.jpg")
+    (raw / "golu.yaml").write_text(
+        """
+title: Navaratri Golu Trivia
+pack: Our Golu Padi
+image: golu.jpg
+dolls:
+  - name: Marapachi Dolls
+    region: { x: 0.42, y: 0.18, width: 0.16, height: 0.22 }
+    prompt: Which wooden pair stands on the top step?
+    explanation: Carved from red sandalwood.
+  - name: Thanjavur Bommai
+    region: { x: 0.15, y: 0.45, width: 0.2, height: 0.25 }
+    explanation: Traditional bobblehead dancer.
+  - name: Dashavatara Set
+    region: { x: 0.5, y: 0.5, width: 0.35, height: 0.2 }
+    explanation: Ten avatars of Vishnu.
+  - name: Chettiar Couple
+    region: { x: 0.1, y: 0.75, width: 0.22, height: 0.2 }
+    explanation: Merchant couple with spice bowls.
+""".strip()
+    )
+    output = tmp_path / "public"
+    manifest = scan_and_build(raw, output)
+    assert manifest["title"] == "Navaratri Golu Trivia"
+    assert manifest["image"].startswith("assets/img_")
+    questions = manifest["packs"][0]["questions"]
+    assert len(questions) == 4
+    assert questions[0]["name"] == "Marapachi Dolls"
+    assert questions[0]["region"] == {
+        "x": 0.42,
+        "y": 0.18,
+        "width": 0.16,
+        "height": 0.22,
+    }
+    assert set(questions[0]["options"]) == {
+        "Marapachi Dolls",
+        "Thanjavur Bommai",
+        "Dashavatara Set",
+        "Chettiar Couple",
+    }
+    assert questions[0]["options"][questions[0]["correctIndex"]] == "Marapachi Dolls"
+
+
+def test_invalid_region_in_golu_config_fails(tmp_path: Path) -> None:
+    raw = tmp_path / "raw_golu"
+    raw.mkdir()
+    Image.new("RGB", (200, 200)).save(raw / "golu.jpg")
+    (raw / "golu.json").write_text(
+        json.dumps(
+            {
+                "dolls": [
+                    {
+                        "name": "Out of Bounds Doll",
+                        "region": {"x": 0.8, "y": 0.2, "width": 0.5, "height": 0.2},
+                    }
+                ]
+            }
+        )
+    )
+    with pytest.raises(ValueError, match="exceeds image bounds"):
+        scan_and_build(raw, tmp_path / "public")
+
+
 def test_cli_writes_manifest_and_reports_invalid_input(
     photos: Path, tmp_path: Path
 ) -> None:

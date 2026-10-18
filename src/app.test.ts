@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import demo from "../public/demo/questions.json";
 import { mountApp } from "./app";
 import { parseManifest } from "./manifest";
@@ -33,10 +33,22 @@ afterEach(() => {
 });
 
 describe("playable app", () => {
-  it("plays a whole round with reveal, scoring, replay, and main menu", () => {
+  it("starts in kiosk explainer mode, zooms into dolls, and plays a full round", () => {
     expect(root.textContent).toContain("Demo pack");
+    expect(root.textContent).toContain("Doll Spotlight (1 / 3)");
+    expect(root.textContent).toContain("Orange Tent");
     expect(root.textContent).not.toContain("Quit to Kodi");
-    click("A little outdoor adventure");
+    expect(document.activeElement?.textContent).toBe("Start game");
+    const kioskImg = root.querySelector<HTMLImageElement>("img");
+    expect(kioskImg?.src).toContain("/golu/demo/camping.svg");
+    expect(kioskImg?.dataset.zoomed).toBe("true");
+    expect(kioskImg?.style.transform).not.toBe("translate(0%, 0%) scale(1)");
+
+    click("Next doll");
+    expect(root.textContent).toContain("Doll Spotlight (2 / 3)");
+    expect(root.textContent).toContain("Golden Sun");
+
+    click("Start game");
     expect(root.querySelector("img")?.src).toContain("/golu/demo/camping.svg");
     for (const question of manifest.packs[0]!.questions) {
       click(question.options[question.correctIndex]!);
@@ -48,15 +60,37 @@ describe("playable app", () => {
       click(question.id === "demo-water" ? "See results" : "Next question");
     }
     expect(root.textContent).toContain("3 / 3 correct");
+    expect(root.querySelector<HTMLImageElement>("img")?.dataset.zoomed).toBe(
+      "false",
+    );
     click("Play again");
     expect(root.textContent).toContain("Score 0");
     key("Escape");
-    expect(root.textContent).toContain("Round length");
+    expect(root.textContent).toContain("Doll Spotlight");
     expect(root.textContent).not.toContain("Score 0");
   });
 
+  it("auto-advances the kiosk explainer on a timer", () => {
+    vi.useFakeTimers();
+    try {
+      cleanup();
+      cleanup = mountApp(root, manifest, {
+        demo: true,
+        base: "/golu/",
+        kioskIntervalMs: 3000,
+      });
+      expect(root.textContent).toContain("Orange Tent");
+      vi.advanceTimersByTime(3000);
+      expect(root.textContent).toContain("Golden Sun");
+      vi.advanceTimersByTime(3000);
+      expect(root.textContent).toContain("Mountain Lake");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("moves focus in a 2x2 grid and keeps a single tab stop", () => {
-    click("A little outdoor adventure");
+    click("Start game");
     expect(document.activeElement?.textContent).toBe("Orange");
     key("ArrowRight");
     expect(document.activeElement?.textContent).toBe("Blue");
@@ -71,25 +105,14 @@ describe("playable app", () => {
     pointerTarget.focus();
     expect(pointerTarget.tabIndex).toBe(0);
     key("Backspace");
-    expect(root.textContent).toContain("Round length");
+    expect(root.textContent).toContain("Doll Spotlight");
   });
 
   it("reports broken images visibly", () => {
-    click("A little outdoor adventure");
+    click("Start game");
     root.querySelector("img")!.dispatchEvent(new Event("error"));
     expect(root.querySelector('[role="alert"]')?.textContent).toContain(
       "Could not load",
-    );
-  });
-
-  it("cycles round length with remote controls", () => {
-    click("Round length");
-    expect(document.activeElement?.textContent).toContain("5 questions");
-    click("Round length");
-    expect(document.activeElement?.textContent).toContain("20 questions");
-    key("ArrowDown");
-    expect(document.activeElement?.textContent).toContain(
-      "A little outdoor adventure",
     );
   });
 
@@ -99,7 +122,7 @@ describe("playable app", () => {
     click("Quit to Kodi");
     expect(root.textContent).toContain("configured browser-exit shortcut");
     click("Back to game");
-    expect(root.textContent).toContain("Round length");
+    expect(root.textContent).toContain("Doll Spotlight");
   });
 
   it("treats manifest strings as text, not HTML", () => {
@@ -111,6 +134,5 @@ describe("playable app", () => {
     expect(root.querySelector("h1")?.textContent).toBe(
       "<img src=x onerror=alert(1)>",
     );
-    expect(root.querySelector("img")).toBeNull();
   });
 });

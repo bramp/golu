@@ -43,6 +43,20 @@ describe("manifest validation", () => {
         },
       ],
     },
+    {
+      ...demo,
+      packs: [
+        {
+          ...demo.packs[0],
+          questions: [
+            {
+              ...demo.packs[0]!.questions[0],
+              region: { x: 0.8, y: 0.2, width: 0.4, height: 0.2 },
+            },
+          ],
+        },
+      ],
+    },
   ])("rejects malformed or ambiguous data", (value) => {
     expect(() => parseManifest(value)).toThrow();
   });

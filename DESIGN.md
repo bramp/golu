@@ -5,9 +5,9 @@
 > launcher must provide and verify its own exit path. A client-side passcode is
 > not access control for private photos; enforce authentication at the host.
 
-This simplifies the entire architecture down to a **100% static, serverless web application**.
+This simplifies the entire architecture down to a **100% static, serverless web application** built around a **single high-resolution photo of the full Golu display**.
 
-Without synchronized multiplayer state or a live database, you don't need a game server at all. An Offline Asset Pipeline pre-computes the photos and trivia into a static bundle, and a single Vanilla JS / TypeScript web app runs identically inside a fullscreen browser on your Kodi HTPC (driven by your TV remote via HDMI-CEC) and on any remote browser via mouse or touch.
+Without synchronized multiplayer state or a live database, you don't need a game server at all. An Offline Asset Pipeline pre-computes the full Golu panorama and doll regions into a static bundle, and a single Vanilla JS / TypeScript web app runs identically inside a fullscreen browser on your Kodi HTPC (driven by your TV remote via HDMI-CEC) and on any remote browser via mouse or touch.
 
 ---
 
@@ -15,8 +15,11 @@ Without synchronized multiplayer state or a live database, you don't need a game
 
 ## 1. System Overview & Goals
 
-* **Zero Backend / No Database:** All game logic, scoring, and round progression execute client-side in the browser. Content is pre-generated via a local CLI build script and served as static JSON and optimized media assets.
-* **Single Codebase (Web-First):** Built with standard web technologies (HTML5, CSS Grid/Flexbox, TypeScript/Vanilla JS) and bundled into a static `dist/` folder.
+* **Single Full-Golu Panorama with Doll Zoom:** The entire experience centers on a single high-resolution photograph (or illustration) of the full Golu steps (*Kolu Padi*). Both the idle kiosk explainer and active trivia questions smoothly pan and zoom into specific dolls (`region: { x, y, width, height }`) on that master image.
+* **Always-On TV Kiosk Explainer Mode:** There is no static title menu. When no one is actively playing, the TV continuously runs an engaging kiosk explainer—panning and zooming randomly from doll to doll across the Golu while displaying each doll's story/explanation and keeping a single prominent **"Start Game"** action ready at all times. After a period of inactivity during or after a game, the app automatically returns to kiosk mode.
+* **Cartoon Game Show Host (Raja Bommai):** An animated SVG + GSAP clay-doll host (*Raja Bommai*, `src/raja-bommai.ts`) accompanies the display on screen—waving and narrating doll lore in kiosk mode, raising his microphone to ask trivia questions, looking around in suspense while waiting, and celebrating or commiserating on answer reveals.
+* **Zero Backend / No Database:** All game logic, scoring, kiosk cycling, and round progression execute client-side in the browser. Content is pre-generated via a local CLI build script and served as static JSON and optimized media assets.
+* **Single Codebase (Web-First):** Built with standard web technologies (HTML5, CSS Grid/Flexbox, SVG, GSAP, TypeScript) and bundled into a static `dist/` folder.
 * **Dual Input Parity (CEC + Pointer):** Every UI element is navigable via 5-way directional keys (`ArrowUp`, `ArrowDown`, `ArrowLeft`, `ArrowRight`, `Enter`, `Backspace`) for HDMI-CEC TV remotes, while supporting standard mouse/touch clicks for online players.
 * **Frictionless Kodi Integration:** Launched directly from the Kodi home screen via a lightweight Python wrapper that spawns a kiosk-mode browser, hands over audio locks, and returns cleanly to Kodi upon exit.
 
@@ -28,74 +31,113 @@ The system is split into two completely decoupled phases: **Build-Time Content G
 
 ```
 [1. BUILD-TIME PIPELINE (Local Dev Machine)]
-  Raw Photos + Prompts ──> Python / Go CLI Script
-                                ├── Strips EXIF / Resizes to 1080p WebP
-                                ├── Generates distractors & question prompts
-                                └── Outputs static `manifest.json` + `/assets/*.webp`
+  Full Golu Photo + Doll Regions/Metadata ──> Python CLI Script (`scripts/build_assets.py`)
+                                                ├── Strips EXIF / Resizes master Golu photo to high-res WebP
+                                                ├── Validates doll bounding boxes (`x, y, width, height`)
+                                                ├── Generates distractors & question prompts
+                                                └── Outputs static `questions.json` + `/assets/*.webp`
 
 [2. DEPLOYMENT (Static Hosting / CDN)]
-  `dist/` (HTML/CSS/JS + manifest.json + WebP images) ──> Cloudflare Pages / R2
+  `dist/` (HTML/CSS/JS + questions.json + WebP image) ──> Cloudflare Pages / R2
 
 [3. RUNTIME EXECUTION (Zero Server State)]
-  ├── Online Users ──> Open URL in Browser ──> Click/Tap to Play
+  ├── Online Users ──> Open URL in Browser ──> Kiosk Explainer or Click/Tap "Start Game"
   └── Kodi HTPC    ──> Add-on launches Chromium `--kiosk` ──> TV Remote (HDMI-CEC)
-
 ```
 
 ---
 
 ## 3. Offline Content Pipeline (Build-Time CLI)
 
-Instead of an admin panel or runtime database, a local script ingests a directory of raw photos and metadata, processes them deterministically, and emits a static asset bundle.
+Instead of an admin panel or runtime database, a local script ingests the full Golu photo and a single `golu.yaml` / `golu.json` configuration (or fallback folder/sidecar metadata), processes them deterministically, and emits a static asset bundle.
 
 ### Pipeline Responsibilities
 
-1. **Image Optimization:** Reads source photos, extracts needed EXIF metadata (date, GPS coordinates, or folder tags) before stripping privacy data, and converts images to 1080p `.webp` files for instant browser decoding.
-2. **Question Synthesis:** Crafts question structures, pairs the correct answer with plausible distractors, and assigns deterministic IDs.
-3. **Manifest Emission:** Outputs a single `questions.json` file alongside the media directory.
+1. **Image Optimization:** Reads the source Golu photo, applies EXIF orientation (`ImageOps.exif_transpose`), strips privacy/EXIF/GPS metadata, and encodes a high-resolution `.webp` master image for smooth pan-and-zoom inspection.
+2. **Doll Region & Question Synthesis:** Maps each doll in `golu.yaml` to normalized coordinates (`x`, `y`, `width`, `height` in `0..1`), pairs each doll's name/answer with 3 plausible distractors (sampled from other dolls on the Golu when not explicitly specified), and assigns deterministic IDs.
+3. **Manifest Emission:** Outputs `questions.json` alongside the `assets/` directory.
+
+### Input Authoring (`raw_photos/golu.yaml`)
+
+```yaml
+title: Navaratri Golu Trivia
+pack: Our Golu Padi
+image: golu.jpg
+dolls:
+  - name: Marapachi Dolls
+    region: { x: 0.42, y: 0.18, width: 0.16, height: 0.22 }
+    prompt: Which traditional wooden pair stands on the top step?
+    explanation: Carved from red sandalwood, Marapachi bride and groom dolls are a traditional wedding gift displayed on the Golu.
+```
 
 ### Data Schema (`questions.json`)
 
 ```json
 {
   "version": "2026.10.18",
-  "title": "Family & Friends Trivia",
+  "title": "Navaratri Golu Trivia",
+  "image": "assets/img_8f92a1.webp",
   "packs": [
     {
-      "id": "pack_01",
-      "name": "Holiday & Travel Memories",
+      "id": "pack_golu",
+      "name": "Our Golu Padi",
       "questions": [
         {
-          "id": "q_001",
-          "image": "/assets/img_8f92a1.webp",
-          "prompt": "Where was this photo taken?",
-          "options": ["Vienna", "Munich", "Prague", "Zurich"],
+          "id": "q_marapachi",
+          "name": "Marapachi Dolls",
+          "image": "assets/img_8f92a1.webp",
+          "region": { "x": 0.42, "y": 0.18, "width": 0.16, "height": 0.22 },
+          "prompt": "Which traditional wooden pair stands on the top step?",
+          "options": [
+            "Marapachi Dolls",
+            "Thanjavur Thalaiyatti Bommai",
+            "Chettiar Couple",
+            "Krishnagiri Clay Pair"
+          ],
           "correctIndex": 0,
-          "explanation": "Taken outside the palace gardens in January 2026."
+          "explanation": "Carved from red sandalwood, Marapachi bride and groom dolls are a traditional wedding gift displayed on the Golu."
         }
       ]
     }
   ]
 }
-
 ```
 
 ---
 
 ## 4. Client Application Architecture (Web Stack)
 
-To keep the bundle tiny and maintenance-free, the frontend uses **Vite + TypeScript + Vanilla DOM / CSS** (or Preact if component ergonomics are preferred).
+To keep the bundle fast and self-contained, the frontend uses **Vite + TypeScript + Vanilla DOM / CSS + GSAP** (powering the **Raja Bommai** SVG host rig and smooth camera pan/zoom).
 
 ### 4.1 State Machine
 
-The client runs a local in-memory state machine:
+Rather than a static title menu, the client runs an always-engaging state machine:
 
-* **`TITLE_SCREEN`:** Select a question pack, configure round length (e.g., 10 questions), or click/press **"Quit to Kodi"** (only visible when launched with `?kodi=1`).
-* **`QUESTION_ACTIVE`:** Displays the photo, prompt, and a 2x2 grid of multiple-choice buttons. Optional countdown timer bar.
-* **`ANSWER_REVEAL`:** Highlights the correct option, shows the `explanation` caption, updates the score tally, and focuses the **"Next Question"** button.
-* **`GAME_OVER`:** Displays final score, summary of rounds, and **"Play Again"** / **"Main Menu"** buttons.
+* **`KIOSK_MODE` (Default / Attract Loop):**
+  * Continuously pans between the full Golu overview and zoomed-in doll regions in random order.
+  * Displays a kiosk explainer card with the doll's name and `explanation` story.
+  * **Raja Bommai** alternates between `wave`, `asking` (narrating with lip-sync), and `idle`.
+  * A single prominent **"Start Game"** button is focused so pressing `Enter` on the TV remote immediately starts a trivia round (plus an optional **"Spotlight Next Doll"** button and **"Quit to Kodi"** when launched with `?kodi=1`).
+* **`QUESTION_ACTIVE`:**
+  * Zooms smoothly into the current question's doll `region` on the full Golu image (with a toggle/hint to peek at the full Golu context).
+  * **Raja Bommai** enters `asking` (raising his mic and speaking the prompt) and transitions to `thinking` (suspenseful eye shifts).
+  * Displays the prompt and a 2x2 grid of multiple-choice buttons.
+* **`ANSWER_REVEAL`:**
+  * Highlights the correct option, shows the doll's `explanation` caption, updates the score tally, and focuses the **"Next Question"** button.
+  * **Raja Bommai** reacts with `excited` (starry eyes, golden burst, joyful pedestal jump) on a correct guess or `sad` (sympathetic droop and head shake) on a miss.
+* **`GAME_OVER`:**
+  * Zooms back out to the full Golu panorama, displays the final score summary, and offers **"Play Again"** or **"Back to Kiosk"**.
+  * An inactivity timer automatically returns `QUESTION_ACTIVE`, `ANSWER_REVEAL`, or `GAME_OVER` back to `KIOSK_MODE` if the remote is set down.
 
-### 4.2 Unified Input Controller (HDMI-CEC + Mouse/Touch)
+### 4.2 Raja Bommai Character Rig (`src/raja-bommai.ts`)
+
+The cartoon game show host is a pure SVG + GSAP 3 character controller with zero external runtime assets (no Rive/Lottie binaries):
+
+* **Reusable Controller:** `new RajaBommaiHost(container, options)` mounts the layered vector rig and exposes `.setState('idle' | 'wave' | 'asking' | 'thinking' | 'excited' | 'sad')`, `.setTalking(boolean)`, `.speakFor(ms)`, `.triggerBlink()`, and `.destroy()`.
+* **Additive Micro-Animations:** Independent GSAP timelines handle lip-sync mouth swapping + mustache bounce (`talkTimeline`) and randomized natural eye blinks without interrupting the active body state timeline.
+* **Interactive Testbed:** `studio.html` imports `src/studio.ts` (which wraps `src/raja-bommai.ts`) so character poses, pivot points, and GSAP snippets can be previewed and tuned in isolation.
+
+### 4.3 Unified Input Controller (HDMI-CEC + Mouse/Touch)
 
 When Kodi is minimized, the Linux kernel (`libcec` / `cec-client` or kernel RC subsystem) translates TV remote presses into standard X11/Wayland keyboard events—or, if Kodi stays running in the background, a tiny bridge maps CEC to keys. By relying on native DOM `<button>` elements and a roving `tabindex`, both remote and mouse users share the exact same interaction model.
 
@@ -138,10 +180,10 @@ window.addEventListener('keydown', (e: KeyboardEvent) => {
 
 ```
 
-### 4.3 TV-Safe UI Styling (10-Foot UI)
+### 4.4 TV-Safe UI Styling (10-Foot UI)
 
 * **High-Visibility Focus Rings:** Since TV remote users don't have a cursor, CSS `:focus-visible` applies a high-contrast `4px solid #FFD700` border and subtle `scale(1.04)` transform so it is unmistakable which option is highlighted across the living room.
-* **Image Preloading:** While the group is viewing question $N$, the browser preloads the `.webp` image for question $N+1$ in the background (`new Image().src = nextUrl`) so transitions are instantaneous even on slower connections.
+* **Smooth Pan-and-Zoom Stage:** Because all dolls live on a single high-resolution Golu photograph, zooming into a doll (`region: { x, y, width, height }`) uses hardware-accelerated CSS `transform: translate(...) scale(...)` on the master image layer—giving instant transitions with zero network wait between dolls or questions.
 
 ---
 

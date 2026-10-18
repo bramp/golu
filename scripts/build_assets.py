@@ -27,11 +27,63 @@ FALLBACK_DISTRACTORS = [
     "Vancouver",
     "Berlin",
 ]
-META_KEYS = {"answer", "prompt", "explanation", "distractors", "options"}
+META_KEYS = {
+    "name",
+    "answer",
+    "prompt",
+    "explanation",
+    "distractors",
+    "options",
+    "region",
+}
+GOLU_CONFIG_KEYS = {"title", "pack", "image", "prompt", "dolls"}
+REGION_KEYS = {"x", "y", "width", "height"}
 
 
 def digest(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
+
+
+def validate_region(value: object, context: str) -> dict[str, float]:
+    if not isinstance(value, dict) or set(value) != REGION_KEYS:
+        raise ValueError(
+            f"{context}: region must be an object with keys {sorted(REGION_KEYS)}"
+        )
+    coords: dict[str, float] = {}
+    for key in ("x", "y", "width", "height"):
+        raw = value[key]
+        if isinstance(raw, bool) or not isinstance(raw, int | float):
+            raise ValueError(f"{context}: region.{key} must be a number in [0, 1]")
+        coord = float(raw)
+        if not 0.0 <= coord <= 1.0:
+            raise ValueError(f"{context}: region.{key} must be between 0 and 1")
+        coords[key] = coord
+    if coords["width"] <= 0 or coords["height"] <= 0:
+        raise ValueError(f"{context}: region width and height must be > 0")
+    if coords["x"] + coords["width"] > 1.000001 or (
+        coords["y"] + coords["height"] > 1.000001
+    ):
+        raise ValueError(
+            f"{context}: region exceeds image bounds (x+width or y+height > 1)"
+        )
+    return coords
+
+
+def validate_meta_dict(meta: object, context: str) -> dict:
+    if not isinstance(meta, dict) or set(meta) - META_KEYS:
+        raise ValueError(f"{context}: metadata must be an object with keys {META_KEYS}")
+    validated = dict(meta)
+    for key, value in meta.items():
+        if key in {"options", "distractors"}:
+            if not isinstance(value, list) or not all(
+                isinstance(item, str) and item.strip() for item in value
+            ):
+                raise ValueError(f"{context}: {key} must contain non-empty strings")
+        elif key == "region":
+            validated["region"] = validate_region(value, context)
+        elif not isinstance(value, str) or not value.strip():
+            raise ValueError(f"{context}: {key} must be a non-empty string")
+    return validated
 
 
 def load_meta(stem: Path) -> dict:
@@ -52,17 +104,37 @@ def load_meta(stem: Path) -> dict:
         )
     except (json.JSONDecodeError, yaml.YAMLError) as error:
         raise ValueError(f"Invalid metadata in {path}: {error}") from error
-    if not isinstance(meta, dict) or set(meta) - META_KEYS:
-        raise ValueError(f"{path}: metadata must be an object with keys {META_KEYS}")
-    for key, value in meta.items():
-        if key in {"options", "distractors"}:
-            if not isinstance(value, list) or not all(
-                isinstance(item, str) and item.strip() for item in value
-            ):
-                raise ValueError(f"{path}: {key} must contain non-empty strings")
-        elif not isinstance(value, str) or not value.strip():
+    return validate_meta_dict(meta, str(path))
+
+
+def load_golu_config(input_dir: Path) -> tuple[Path, dict] | None:
+    paths = [input_dir / f"golu{extension}" for extension in (".json", ".yaml", ".yml")]
+    existing = [path for path in paths if path.is_file()]
+    if not existing:
+        return None
+    if len(existing) > 1:
+        raise ValueError(f"Ambiguous Golu configs: {', '.join(map(str, existing))}")
+    path = existing[0]
+    try:
+        content = path.read_text(encoding="utf-8")
+        config = (
+            json.loads(content) if path.suffix == ".json" else yaml.safe_load(content)
+        )
+    except (json.JSONDecodeError, yaml.YAMLError) as error:
+        raise ValueError(f"Invalid Golu config in {path}: {error}") from error
+    if not isinstance(config, dict) or set(config) - GOLU_CONFIG_KEYS:
+        raise ValueError(
+            f"{path}: Golu config must be an object with keys {GOLU_CONFIG_KEYS}"
+        )
+    for key in ("title", "pack", "image", "prompt"):
+        if key in config and (
+            not isinstance(config[key], str) or not config[key].strip()
+        ):
             raise ValueError(f"{path}: {key} must be a non-empty string")
-    return meta
+    dolls = config.get("dolls")
+    if not isinstance(dolls, list) or not dolls:
+        raise ValueError(f"{path}: dolls must be a non-empty list")
+    return path, config
 
 
 def extract_exif_date(image: Image.Image) -> str | None:
@@ -143,11 +215,111 @@ def build_options(
     return options, options.index(answer)
 
 
+def build_from_golu_config(
+    input_dir: Path,
+    output_dir: Path,
+    config_path: Path,
+    config: dict,
+    default_title: str,
+    default_prompt: str,
+    quality: int,
+    force: bool,
+) -> dict:
+    title = config.get("title", default_title)
+    pack_name = config.get("pack", "Our Golu Padi")
+    config_prompt = config.get("prompt", default_prompt)
+    if "image" in config:
+        source = (input_dir / config["image"]).resolve()
+        if (
+            not source.is_relative_to(input_dir)
+            or not source.is_file()
+            or source.suffix.lower() not in SUPPORTED_EXTENSIONS
+        ):
+            raise ValueError(
+                f"{config_path}: image not found or unsupported: {config['image']}"
+            )
+    else:
+        images = [
+            path
+            for path in sorted(input_dir.iterdir())
+            if path.is_file()
+            and not path.name.startswith(".")
+            and path.suffix.lower() in SUPPORTED_EXTENSIONS
+        ]
+        if len(images) != 1:
+            raise ValueError(
+                f"{config_path}: specify 'image' when {input_dir} "
+                "does not have exactly one image"
+            )
+        source = images[0]
+
+    try:
+        master_image, date = process_image(
+            source, output_dir / "assets", quality, force
+        )
+    except (ValueError, OSError) as error:
+        raise ValueError(f"{source}: {error}") from error
+
+    dolls = config["dolls"]
+    validated_dolls: list[dict] = []
+    candidates: list[str] = []
+    for index, raw_doll in enumerate(dolls):
+        context = f"{config_path}#dolls[{index}]"
+        doll = validate_meta_dict(raw_doll, context)
+        answer = doll.get("answer") or doll.get("name")
+        if not answer:
+            raise ValueError(f"{context}: each doll requires 'name' or 'answer'")
+        doll["answer"] = answer
+        doll["name"] = doll.get("name", answer)
+        candidates.append(answer)
+        validated_dolls.append(doll)
+
+    questions = []
+    seen_ids: set[str] = set()
+    for index, doll in enumerate(validated_dolls):
+        answer = doll["answer"]
+        name = doll["name"]
+        seed_input = f"{source.relative_to(input_dir).as_posix()}:{index}:{name}"
+        question_id = "q_" + digest(seed_input.encode())
+        if question_id in seen_ids:
+            raise ValueError(f"{config_path}: duplicate doll entry {name!r}")
+        seen_ids.add(question_id)
+        try:
+            options, correct_index = build_options(
+                answer, candidates, question_id, doll
+            )
+        except ValueError as error:
+            raise ValueError(f"{config_path}#dolls[{index}]: {error}") from error
+        explanation = doll.get(
+            "explanation",
+            f"{name} - taken in {date}." if date else f"Correct answer: {answer}",
+        )
+        question: dict = {
+            "id": question_id,
+            "name": name,
+            "image": master_image,
+            "prompt": doll.get("prompt", config_prompt),
+            "options": options,
+            "correctIndex": correct_index,
+            "explanation": explanation,
+        }
+        if "region" in doll:
+            question["region"] = doll["region"]
+        questions.append(question)
+
+    pack_id = "pack_" + digest(pack_name.encode())
+    return {
+        "title": title,
+        "image": master_image,
+        "packs": [{"id": pack_id, "name": pack_name, "questions": questions}],
+    }
+
+
 def scan_and_build(
     input_dir: Path,
     output_dir: Path,
     title: str = "Photo Trivia",
-    default_prompt: str = "Where was this photo taken?",
+    default_prompt: str = "Which doll is highlighted on the Golu?",
     quality: int = 82,
     force: bool = False,
 ) -> dict:
@@ -160,50 +332,63 @@ def scan_and_build(
         raise ValueError("quality must be between 1 and 100")
     if not title.strip() or not default_prompt.strip():
         raise ValueError("title and prompt must not be empty")
-    root_meta = load_meta(input_dir / "meta")
-    packs = []
-    for pack_dir in sorted(input_dir.iterdir()):
-        if not pack_dir.is_dir() or pack_dir.name.startswith("."):
-            continue
-        pack_meta = root_meta | load_meta(pack_dir / "meta")
-        answer_dirs = [
-            path
-            for path in sorted(pack_dir.iterdir())
-            if path.is_dir() and not path.name.startswith(".")
-        ]
-        candidates = [path.name for path in answer_dirs]
-        questions = []
-        for answer_dir in answer_dirs:
-            folder_meta = pack_meta | load_meta(answer_dir / "meta")
-            for source in sorted(answer_dir.iterdir()):
-                if (
-                    not source.is_file()
-                    or source.name.startswith(".")
-                    or source.suffix.lower() not in SUPPORTED_EXTENSIONS
-                ):
-                    continue
-                meta = folder_meta | load_meta(source.with_suffix(""))
-                question_id = "q_" + digest(
-                    source.relative_to(input_dir).as_posix().encode()
-                )
-                answer = meta.get("answer", answer_dir.name)
-                try:
-                    options, correct_index = build_options(
-                        answer, candidates, question_id, meta
+    golu_loaded = load_golu_config(input_dir)
+    if golu_loaded is not None:
+        config_path, config = golu_loaded
+        payload = build_from_golu_config(
+            input_dir,
+            output_dir,
+            config_path,
+            config,
+            title,
+            default_prompt,
+            quality,
+            force,
+        )
+    else:
+        root_meta = load_meta(input_dir / "meta")
+        packs = []
+        for pack_dir in sorted(input_dir.iterdir()):
+            if not pack_dir.is_dir() or pack_dir.name.startswith("."):
+                continue
+            pack_meta = root_meta | load_meta(pack_dir / "meta")
+            answer_dirs = [
+                path
+                for path in sorted(pack_dir.iterdir())
+                if path.is_dir() and not path.name.startswith(".")
+            ]
+            candidates = [path.name for path in answer_dirs]
+            questions = []
+            for answer_dir in answer_dirs:
+                folder_meta = pack_meta | load_meta(answer_dir / "meta")
+                for source in sorted(answer_dir.iterdir()):
+                    if (
+                        not source.is_file()
+                        or source.name.startswith(".")
+                        or source.suffix.lower() not in SUPPORTED_EXTENSIONS
+                    ):
+                        continue
+                    meta = folder_meta | load_meta(source.with_suffix(""))
+                    question_id = "q_" + digest(
+                        source.relative_to(input_dir).as_posix().encode()
                     )
-                    image, date = process_image(
-                        source, output_dir / "assets", quality, force
+                    answer = meta.get("answer", answer_dir.name)
+                    try:
+                        options, correct_index = build_options(
+                            answer, candidates, question_id, meta
+                        )
+                        image, date = process_image(
+                            source, output_dir / "assets", quality, force
+                        )
+                    except (ValueError, OSError) as error:
+                        raise ValueError(f"{source}: {error}") from error
+                    explanation = meta.get(
+                        "explanation",
+                        f"{answer} - taken in {date}."
+                        if date
+                        else f"Correct answer: {answer}",
                     )
-                except (ValueError, OSError) as error:
-                    raise ValueError(f"{source}: {error}") from error
-                explanation = meta.get(
-                    "explanation",
-                    f"{answer} - taken in {date}."
-                    if date
-                    else f"Correct answer: {answer}",
-                )
-                questions.append(
-                    {
+                    question: dict = {
                         "id": question_id,
                         "image": image,
                         "prompt": meta.get("prompt", default_prompt),
@@ -211,20 +396,24 @@ def scan_and_build(
                         "correctIndex": correct_index,
                         "explanation": explanation,
                     }
+                    if "name" in meta:
+                        question["name"] = meta["name"]
+                    if "region" in meta:
+                        question["region"] = meta["region"]
+                    questions.append(question)
+            if questions:
+                packs.append(
+                    {
+                        "id": "pack_" + digest(pack_dir.name.encode()),
+                        "name": pack_dir.name,
+                        "questions": questions,
+                    }
                 )
-        if questions:
-            packs.append(
-                {
-                    "id": "pack_" + digest(pack_dir.name.encode()),
-                    "name": pack_dir.name,
-                    "questions": questions,
-                }
+        if not packs:
+            raise ValueError(
+                f"No supported photos or golu.yaml/json found under {input_dir}"
             )
-    if not packs:
-        raise ValueError(
-            f"No supported photos found under {input_dir}/<pack>/<answer>/"
-        )
-    payload = {"title": title, "packs": packs}
+        payload = {"title": title, "packs": packs}
     manifest = {
         "version": digest(json.dumps(payload, sort_keys=True).encode()),
         **payload,

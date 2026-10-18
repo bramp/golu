@@ -8,7 +8,7 @@ const pack = parseManifest(demo).packs[0]!;
 describe("round state machine", () => {
   it("scores once, reveals answers, then finishes the selected round", () => {
     const game = new Game();
-    expect(game.phase).toBe("TITLE_SCREEN");
+    expect(game.phase).toBe("KIOSK_MODE");
     game.start(pack, 2);
     expect(game.phase).toBe("QUESTION_ACTIVE");
     game.next();
@@ -23,11 +23,11 @@ describe("round state machine", () => {
     game.next();
     expect(game.phase).toBe("GAME_OVER");
     expect(game.score).toBe(1);
-    game.start(pack, 10);
+    game.start(pack);
     expect(game.questions).toHaveLength(3);
     expect(game.score).toBe(0);
-    game.menu();
-    expect(game.phase).toBe("TITLE_SCREEN");
+    game.kiosk();
+    expect(game.phase).toBe("KIOSK_MODE");
     expect(game.questions).toHaveLength(0);
   });
 

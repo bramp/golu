@@ -1,6 +1,15 @@
+export interface Region {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface Question {
   id: string;
+  name?: string;
   image: string;
+  region?: Region;
   prompt: string;
   options: [string, string, string, string];
   correctIndex: number;
@@ -16,6 +25,7 @@ export interface Pack {
 export interface Manifest {
   version: string;
   title: string;
+  image?: string;
   packs: Pack[];
 }
 
@@ -27,11 +37,36 @@ function text(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
 
+function unitInterval(value: unknown): value is number {
+  return (
+    typeof value === "number" &&
+    Number.isFinite(value) &&
+    value >= 0 &&
+    value <= 1
+  );
+}
+
+export function isValidRegion(value: unknown): value is Region {
+  return (
+    record(value) &&
+    unitInterval(value.x) &&
+    unitInterval(value.y) &&
+    unitInterval(value.width) &&
+    unitInterval(value.height) &&
+    value.width > 0 &&
+    value.height > 0 &&
+    value.x + value.width <= 1.000001 &&
+    value.y + value.height <= 1.000001
+  );
+}
+
 function question(value: unknown): value is Question {
   return (
     record(value) &&
     text(value.id) &&
+    (value.name === undefined || text(value.name)) &&
     text(value.image) &&
+    (value.region === undefined || isValidRegion(value.region)) &&
     text(value.prompt) &&
     typeof value.explanation === "string" &&
     Array.isArray(value.options) &&
@@ -51,6 +86,7 @@ export function parseManifest(value: unknown): Manifest {
     !record(value) ||
     !text(value.version) ||
     !text(value.title) ||
+    (value.image !== undefined && !text(value.image)) ||
     !Array.isArray(value.packs) ||
     value.packs.length === 0
   ) {
@@ -88,7 +124,15 @@ export function parseManifest(value: unknown): Manifest {
     packIds.add(pack.id);
     packs.push({ id: pack.id, name: pack.name, questions });
   }
-  return { version: value.version, title: value.title, packs };
+  const result: Manifest = {
+    version: value.version,
+    title: value.title,
+    packs,
+  };
+  if (typeof value.image === "string") {
+    result.image = value.image;
+  }
+  return result;
 }
 
 export async function loadManifest(

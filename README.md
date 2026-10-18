@@ -1,7 +1,8 @@
 # Golu
 
-A static, photo-powered party trivia game. Play with a mouse, touch screen, or
-directional remote. No backend, accounts, or runtime database.
+A static, single-image Navaratri Golu party trivia game and always-on TV kiosk
+explainer. Play with a mouse, touch screen, or directional TV remote. No backend,
+accounts, or runtime database.
 
 by Andrew Brampton ([bramp.net](https://bramp.net)) (c) 2026
 
@@ -16,16 +17,16 @@ make dev
 ```
 
 Open the local URL printed by Vite. A bundled, original illustration pack lets you
-play immediately without providing or publishing personal photos.
+explore kiosk mode and play immediately without providing or publishing personal photos.
 
 ## Project layout
 
 ```text
-src/                     Vanilla TypeScript app, state machine, input controller, tests
-public/demo/             Public-safe demo manifest and illustration
+src/                     Vanilla TypeScript app, kiosk/trivia state machine, Raja Bommai rig, tests
+public/demo/             Public-safe demo manifest and illustration with region coordinates
 public/questions.json    Generated personal question manifest (gitignored)
-public/assets/           Generated WebP photos (gitignored)
-raw_photos/              Private input photos and sidecars (gitignored)
+public/assets/           Generated WebP master Golu image (gitignored)
+raw_photos/              Private input Golu photo and golu.yaml/json config (gitignored)
 scripts/build_assets.py  Offline Python CLI
 tests/                   Asset pipeline tests
 .github/                 CI and dependency update configuration
@@ -35,62 +36,70 @@ The architecture is described in [DESIGN.md](DESIGN.md). That document contains
 sketches; the runnable CLI is in `scripts/build_assets.py`, with its supported
 contract documented below.
 
-## Build your own packs
+## Build your Golu manifest
 
-Arrange photos as `<pack>/<correct answer>/<photo>`:
+Place your full-Golu photo and a `golu.yaml` (or `golu.json` / `golu.yml`) manifest in
+`raw_photos/`:
 
 ```text
 raw_photos/
-  Holiday & Travel/
-    Munich/
-      palace.jpg
-      palace.json
-    Vienna/
-      gardens.heic
-    Moab/
-      hike.png
+  golu.jpg
+  golu.yaml
 ```
+
+Example `raw_photos/golu.yaml`:
+
+```yaml
+title: Navaratri Golu Trivia
+pack: Our Golu Padi
+image: golu.jpg
+dolls:
+  - name: Marapachi Dolls
+    region: { x: 0.42, y: 0.18, width: 0.16, height: 0.22 }
+    prompt: Which traditional wooden pair stands on the top step?
+    explanation: Carved from red sandalwood, Marapachi bride and groom dolls are a traditional wedding gift.
+  - name: Thanjavur Thalaiyatti Bommai
+    region: { x: 0.18, y: 0.44, width: 0.2, height: 0.24 }
+    prompt: Which bobblehead dancer sways on the middle step?
+    explanation: Handcrafted in Thanjavur with a weighted clay base so it dances gently when tapped.
+  - name: Dashavatara Set
+    region: { x: 0.48, y: 0.5, width: 0.36, height: 0.2 }
+    explanation: The ten avatars of Lord Vishnu arranged in chronological order.
+  - name: Chettiar Couple
+    region: { x: 0.12, y: 0.72, width: 0.22, height: 0.22 }
+    explanation: Traditional merchant couple surrounded by miniature groceries, grains, and spices.
+```
+
+Run the offline asset pipeline:
 
 ```sh
 make assets
 # Or customize the build:
 uv run python scripts/build_assets.py \
-  --input raw_photos --output public --title "Family & Friends Trivia"
+  --input raw_photos --output public --title "Navaratri Golu Trivia"
 ```
 
-Supported inputs: JPEG, PNG, WebP, HEIC, HEIF. Images are oriented, scaled to fit
-1920x1080 without upscaling, and saved as pixel-only WebP files. EXIF, GPS, XMP, and
-ICC metadata are not copied. A capture month/year can appear in the explanation;
-override `explanation` if you don't want to reveal it. Visible faces, locations,
-folder-derived answers, and captions are **not** anonymized.
+Supported inputs: JPEG, PNG, WebP, HEIC, HEIF. The master Golu image is oriented,
+scaled to fit 1920x1080 without upscaling, and saved as a pixel-only WebP file. EXIF,
+GPS, XMP, and ICC metadata are not copied. A capture month/year can appear in default
+explanations; override `explanation` if you don't want to reveal it. Visible faces,
+locations, answers, and captions are **not** anonymized.
 
-Add optional JSON or YAML sidecars:
+Authoring details:
 
-```json
-{
-  "prompt": "Which palace did we visit?",
-  "answer": "Nymphenburg Palace",
-  "distractors": ["Schonbrunn Palace", "Belvedere Palace", "Sanssouci Palace"],
-  "explanation": "A freezing walk through Munich!"
-}
-```
-
-- Per-photo: `palace.json`, `palace.yaml`, or `palace.yml`.
-- Folder defaults: `meta.json`, `meta.yaml`, or `meta.yml` at input root, pack,
-  or answer folder. More specific keys override parent keys.
-- `options` can specify exactly four ordered choices including `answer`, instead
-  of `distractors`. All choices must be distinct, ignoring case and whitespace.
-- Only one sidecar format is allowed per photo/folder. Malformed or ambiguous
-  metadata fails the build rather than silently using defaults.
-- Fallback distractors are city names. Use explicit choices for non-location packs,
-  and override `prompt` for year/person/event packs.
-- IDs depend on relative paths, so unrelated pack additions don't renumber them.
-  Renaming/moving a photo intentionally changes its question ID.
+- Each entry in `dolls` supports `name`, `answer` (defaults to `name`), `region`
+  (`{ x, y, width, height }` normalized to `0..1`), `prompt`, `explanation`, and either
+  `distractors` (3 wrong choices) or `options` (4 ordered choices including `answer`).
+- When `distractors` and `options` are omitted, other doll names in `dolls` are sampled
+  deterministically as wrong choices.
+- Folder-based packs (`raw_photos/<pack>/<answer>/<photo>`) and per-photo/folder
+  `meta.json`/`meta.yaml` sidecars remain supported for backward compatibility.
+- Malformed metadata or out-of-bounds `region` coordinates (`x + width > 1` or
+  `y + height > 1`) fail the build rather than silently using defaults.
 - Image cache keys include source bytes, encoder versions, and quality. Unchanged
   inputs produce a byte-identical manifest. `--force` re-encodes cached images.
-- Builds replace the manifest only on success. Old unreferenced images are retained;
+- Builds replace `questions.json` only on success. Old unreferenced images are retained;
   use a fresh output directory when preparing a privacy-sensitive release.
-- Avoid photos named `meta.*`: that stem is reserved for folder defaults.
 
 The app requests `questions.json` first. A **404 only** selects the demo pack; invalid
 JSON, server failures, and wrong content types show an error rather than pretending
@@ -103,7 +112,7 @@ for `questions.json` or publish a generated manifest.
 | -------------- | ----------------------------------------- |
 | `make setup`   | Install locked dependencies and Git hook  |
 | `make dev`     | Start Vite development server             |
-| `make assets`  | Build private photos into `public/`       |
+| `make assets`  | Build private Golu photo into `public/`   |
 | `make format`  | Format web/Python files and fix Ruff lint |
 | `make analyze` | Lint, type-check, and check formatting    |
 | `make test`    | Run frontend and pipeline tests           |
@@ -116,15 +125,21 @@ tests. Run `pre-commit run --all-files` after staging new files to check everyth
 Dependency lockfiles are committed; `npm ci` and `uv sync --locked` reproduce them.
 The original design documents are excluded from Prettier to preserve their sketches.
 
-## Gameplay and remote controls
+## Kiosk mode, gameplay, and remote controls
 
-Choose a round length (5, 10, or 20), then a pack. Small packs use all their questions.
-This starter takes questions in manifest order. Answers reveal immediately; scoring
-happens once per question. Replay starts a fresh round.
+There is no static title menu. When idle, the app runs an always-on **kiosk explainer**
+on the TV—zooming into different dolls across the single full-Golu image, showing each
+doll's name and story (`explanation`), and keeping **"Start game"** focused so a single
+`Enter` press launches a trivia round immediately.
+
+During a trivia round, each question zooms into that doll's `region` on the full Golu
+image and presents four choices in a 2x2 grid. Answers reveal immediately with the
+doll's story; scoring happens once per question. Finishing a round zooms back out to
+the full Golu overview with **"Play again"** and **"Back to kiosk"**.
 
 Arrow keys move focus, Enter/Space activate native buttons, and Backspace/Escape
-return to the menu. Pointer/touch use the same controls. The answer grid stays two
-columns on mobile so its up/down navigation matches the screen.
+return to the kiosk explainer. Pointer/touch use the same controls. The answer grid
+stays two columns on mobile so its up/down navigation matches the screen.
 
 ## Build and hosting
 
