@@ -17,7 +17,7 @@
 ## Phase 2: Offline Content Pipeline & Curation
 
 - [x] **Author Single-Photo Golu Config (`raw_photos/golu.yaml`)**
-  - [x] Place the high-resolution photo of the full Golu display in `raw_photos/` alongside `golu.yaml` (generated from `raw_photos/facts.json`).
+  - [x] Place the high-resolution photo of the full Golu display in `raw_photos/` alongside `golu.yaml`.
   - [x] Define each doll's `name`, normalized `region` (`{ x, y, width, height }` in `0..1`), custom `prompt`, and `explanation` story.
   - [x] Verify at least 4 distinct dolls (18 dolls/sets configured) exist so the 2x2 grid always has 4 unique choices.
 - [x] **Generate & Verify Static Bundle**
@@ -59,10 +59,18 @@
   - [x] Map `Backspace` / `Escape` (TV remote "Back" button) to return to `KIOSK_MODE`.
 - [x] **Pointer / Touch Parity**
   - [x] Ensure standard mouse `click` and mobile `touchstart` events trigger the exact same selection handler and update focus state cleanly without ghost highlights on touch devices.
-  - [x] Require landscape orientation on mobile (`@media (orientation: portrait) and (max-width: 900px)`) with a full-screen "Rotate your phone to landscape" prompt and compact mobile-landscape HUD sizing.
-- [ ] **Cartoon Game Show Host Integration (`src/raja-bommai.ts`)**
+  - [x] Require landscape orientation on mobile (`@media (orientation: portrait) and (max-width: 600px)`) with a full-screen "Rotate your phone to landscape" prompt and compact mobile-landscape HUD sizing.
+- [x] **Cartoon Game Show Host Integration (`src/raja-bommai.ts`)**
   - [x] Build reusable SVG + GSAP `RajaBommaiHost` controller and animation studio (`studio.html`, `src/studio.ts`).
-  - [ ] Mount `RajaBommaiHost` inside the main game view (`src/app.ts`) to react across `KIOSK_MODE`, `QUESTION_ACTIVE`, and `ANSWER_REVEAL`.
+  - [x] Mount `RajaBommaiHost` inside the main game view (`src/app.ts`) to react across `KIOSK_MODE`, `QUESTION_ACTIVE`, and `ANSWER_REVEAL`.
+- [ ] **Host Voiceover (`edge-tts`) & Lip-Sync (Option 1 — Web Audio `AnalyserNode`)**
+  - [ ] Add `edge-tts` to `pyproject.toml` and synthesize content-addressed `.mp3` clips (`en-IN-PrabhatNeural`) in `scripts/build_assets.py` for each doll (`spotlight`, `question`, `reveal`) and shared host reactions (`welcome`, `correct`, `wrong`).
+  - [ ] Extend `Manifest` and `Question` types in `src/manifest.ts` to validate optional `hostAudio` and per-question `audio` paths.
+  - [ ] Add `setMouthLevel(level: number)` to `RajaBommaiHost` (`src/raja-bommai.ts`) and build a Web Audio `AnalyserNode` voice player that drives real-time RMS amplitude lip-sync (`#mouth-open-smile` `scaleY`, `#mouth-talk-closed`, `#mustache`, and head/brow emphasis).
+  - [ ] Wire voiceover playback into `src/app.ts` across `KIOSK_MODE` (advancing after narration finishes), `QUESTION_ACTIVE` (switching from `asking` to `thinking` when prompt audio ends), and `ANSWER_REVEAL` (stinger + explanation), with graceful autoplay fallback and a HUD Mute toggle.
+- [ ] **Future Work: Lip-Sync Options 2 & 3**
+  - [ ] **Option 2 (Pre-computed Amplitude Envelopes):** Emit 20 Hz RMS amplitude arrays in `questions.json` during `make assets` so lip-sync works without Web Audio `AudioContext` / CORS constraints.
+  - [ ] **Option 3 (Phoneme / Viseme Mouth Shapes):** Add rounded (`#mouth-oo`) and consonant SVG mouth groups to `src/raja-bommai.ts` and drive them from `edge-tts` `WordBoundary` cues or `rhubarb-lip-sync`.
 - [ ] **Audio Effects (Optional)**
   - [ ] Add lightweight Web Audio API synthesized tones (or small `.mp3`/`.ogg` sprites) for D-pad navigation ticks, correct chimes, and wrong buzzers.
 
