@@ -34,7 +34,7 @@ def test_build_is_deterministic_and_cached(photos: Path, tmp_path: Path) -> None
         assert len(set(question["options"])) == 4
         assert question["image"].startswith("assets/")
     with Image.open(assets[0]) as image:
-        assert image.size == (1620, 1080)
+        assert image.size == (2400, 1600)
         assert not image.getexif()
 
 
@@ -51,7 +51,12 @@ def test_cache_key_includes_quality(photos: Path, tmp_path: Path) -> None:
     source = next(photos.rglob("*.jpg"))
     first, _ = process_image(source, tmp_path / "assets", quality=60)
     second, _ = process_image(source, tmp_path / "assets", quality=90)
-    assert first != second
+    resized, _ = process_image(
+        source, tmp_path / "assets", quality=90, max_dimension=1080
+    )
+    assert len({first, second, resized}) == 3
+    with Image.open(tmp_path / resized) as image:
+        assert image.size == (1080, 720)
 
 
 def test_orientation_and_private_metadata_are_removed(tmp_path: Path) -> None:
@@ -64,7 +69,7 @@ def test_orientation_and_private_metadata_are_removed(tmp_path: Path) -> None:
     relative, date = process_image(source, tmp_path)
     assert date == "January 2026"
     with Image.open(tmp_path / Path(relative).name) as image:
-        assert image.size == (720, 1080)
+        assert image.size == (1600, 2400)
         assert not image.getexif()
         assert "exif" not in image.info
         assert "xmp" not in image.info
@@ -156,6 +161,8 @@ def test_invalid_input_and_quality(photos: Path, tmp_path: Path) -> None:
         scan_and_build(photos, photos / "public")
     with pytest.raises(ValueError, match="quality"):
         scan_and_build(photos, tmp_path / "public", quality=101)
+    with pytest.raises(ValueError, match="max_dimension"):
+        scan_and_build(photos, tmp_path / "public", max_dimension=0)
 
 
 def test_heic_and_transparent_png_inputs(tmp_path: Path) -> None:

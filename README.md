@@ -80,10 +80,11 @@ uv run python scripts/build_assets.py \
 ```
 
 Supported inputs: JPEG, PNG, WebP, HEIC, HEIF. The master Golu image is oriented,
-scaled to fit 1920x1080 without upscaling, and saved as a pixel-only WebP file. EXIF,
-GPS, XMP, and ICC metadata are not copied. A capture month/year can appear in default
-explanations; override `explanation` if you don't want to reveal it. Visible faces,
-locations, answers, and captions are **not** anonymized.
+kept at full resolution by default (or optionally capped with `--max-dimension`), and
+saved as a high-quality pixel-only WebP file (`--quality 92` by default, or lossless at
+`--quality 100`). EXIF, GPS, XMP, and ICC metadata are not copied. A capture month/year
+can appear in default explanations; override `explanation` if you don't want to reveal
+it. Visible faces, locations, answers, and captions are **not** anonymized.
 
 Authoring details:
 

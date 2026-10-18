@@ -36,6 +36,7 @@ META_KEYS = {
     "options",
     "region",
 }
+DEFAULT_QUALITY = 92
 GOLU_CONFIG_KEYS = {"title", "pack", "image", "prompt", "dolls"}
 REGION_KEYS = {"x", "y", "width", "height"}
 
@@ -152,10 +153,12 @@ def extract_exif_date(image: Image.Image) -> str | None:
 def process_image(
     source: Path,
     assets: Path,
-    quality: int = 82,
+    quality: int = DEFAULT_QUALITY,
     force: bool = False,
+    max_dimension: int | None = None,
 ) -> tuple[str, str | None]:
-    recipe = f"golu-v1:1920x1080:{quality}:{PIL.__version__}:{pillow_heif.__version__}"
+    size_tag = f"{max_dimension}x{max_dimension}" if max_dimension else "full"
+    recipe = f"golu-v2:{size_tag}:{quality}:{PIL.__version__}:{pillow_heif.__version__}"
     key = digest(source.read_bytes() + recipe.encode())
     filename = f"img_{key}.webp"
     destination = assets / filename
@@ -163,7 +166,10 @@ def process_image(
         date = extract_exif_date(original)
         if not destination.exists() or force:
             image = ImageOps.exif_transpose(original)
-            image.thumbnail((1920, 1080), Image.Resampling.LANCZOS)
+            if max_dimension is not None:
+                image.thumbnail(
+                    (max_dimension, max_dimension), Image.Resampling.LANCZOS
+                )
             mode = "RGBA" if image.has_transparency_data else "RGB"
             # A fresh pixel-only image also drops ICC profiles, XMP, and EXIF.
             clean = Image.new(mode, image.size)
@@ -171,7 +177,13 @@ def process_image(
             assets.mkdir(parents=True, exist_ok=True)
             temporary = destination.with_suffix(".tmp")
             try:
-                clean.save(temporary, format="WEBP", quality=quality, method=6)
+                clean.save(
+                    temporary,
+                    format="WEBP",
+                    quality=quality,
+                    lossless=quality == 100,
+                    method=6,
+                )
                 temporary.replace(destination)
             finally:
                 temporary.unlink(missing_ok=True)
@@ -224,6 +236,7 @@ def build_from_golu_config(
     default_prompt: str,
     quality: int,
     force: bool,
+    max_dimension: int | None = None,
 ) -> dict:
     title = config.get("title", default_title)
     pack_name = config.get("pack", "Our Golu Padi")
@@ -255,7 +268,7 @@ def build_from_golu_config(
 
     try:
         master_image, date = process_image(
-            source, output_dir / "assets", quality, force
+            source, output_dir / "assets", quality, force, max_dimension
         )
     except (ValueError, OSError) as error:
         raise ValueError(f"{source}: {error}") from error
@@ -320,8 +333,9 @@ def scan_and_build(
     output_dir: Path,
     title: str = "Photo Trivia",
     default_prompt: str = "Which doll is highlighted on the Golu?",
-    quality: int = 82,
+    quality: int = DEFAULT_QUALITY,
     force: bool = False,
+    max_dimension: int | None = None,
 ) -> dict:
     input_dir, output_dir = input_dir.resolve(), output_dir.resolve()
     if not input_dir.is_dir():
@@ -330,6 +344,8 @@ def scan_and_build(
         raise ValueError("Input and output directories must not overlap")
     if not 1 <= quality <= 100:
         raise ValueError("quality must be between 1 and 100")
+    if max_dimension is not None and max_dimension <= 0:
+        raise ValueError("max_dimension must be greater than 0")
     if not title.strip() or not default_prompt.strip():
         raise ValueError("title and prompt must not be empty")
     golu_loaded = load_golu_config(input_dir)
@@ -344,6 +360,7 @@ def scan_and_build(
             default_prompt,
             quality,
             force,
+            max_dimension,
         )
     else:
         root_meta = load_meta(input_dir / "meta")
@@ -378,7 +395,11 @@ def scan_and_build(
                             answer, candidates, question_id, meta
                         )
                         image, date = process_image(
-                            source, output_dir / "assets", quality, force
+                            source,
+                            output_dir / "assets",
+                            quality,
+                            force,
+                            max_dimension,
                         )
                     except (ValueError, OSError) as error:
                         raise ValueError(f"{source}: {error}") from error
@@ -432,18 +453,32 @@ def scan_and_build(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Build photos into static trivia packs and 1080p WebP images."
+        description=(
+            "Build photos into static trivia packs and high-resolution WebP images."
+        )
     )
     parser.add_argument("-i", "--input", type=Path, default=Path("raw_photos"))
     parser.add_argument("-o", "--output", type=Path, default=Path("public"))
     parser.add_argument("--title", default="Photo Trivia")
     parser.add_argument("--prompt", default="Where was this photo taken?")
-    parser.add_argument("--quality", type=int, default=82)
+    parser.add_argument("--quality", type=int, default=DEFAULT_QUALITY)
+    parser.add_argument(
+        "--max-dimension",
+        type=int,
+        default=None,
+        help="Optional max width/height in pixels (preserves full size by default).",
+    )
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
     try:
         manifest = scan_and_build(
-            args.input, args.output, args.title, args.prompt, args.quality, args.force
+            args.input,
+            args.output,
+            args.title,
+            args.prompt,
+            args.quality,
+            args.force,
+            args.max_dimension,
         )
     except (ValueError, OSError) as error:
         parser.exit(1, f"Error: {error}\n")
