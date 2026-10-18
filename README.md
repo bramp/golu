@@ -128,15 +128,33 @@ columns on mobile so its up/down navigation matches the screen.
 
 ## Build and hosting
 
+The game is hosted on GitHub Pages at <https://golu.bramp.net/>.
+GitHub Actions runs `make test-ci` on pull requests and pushes to `main`.
+Only successful pushes to `main` deploy the tested `dist/` artifact; pull requests
+never deploy. The workflow can also be run manually on `main` from the Actions tab.
+
+Repository and domain setup:
+
+1. In **Settings > Pages**, select **GitHub Actions** as the build source.
+2. Set the custom domain to `golu.bramp.net`. `public/CNAME` is also copied into
+   `dist/CNAME` by Vite.
+3. At the DNS provider, add a CNAME record for `golu` pointing to
+   `bramp.github.io` (not the repository URL).
+4. Once DNS is verified and GitHub has issued the certificate, enable
+   **Enforce HTTPS** in the Pages settings.
+
+To validate or preview the production build locally:
+
 ```sh
 make test-ci
-# Upload the contents of dist/ to a static host.
+make preview
 ```
 
 Vite uses a relative base, so deployment under a subdirectory works. The runtime
 resolves generated image URLs relative to that base. Serve over HTTP(S), not `file://`.
-CI tests and builds demo content only. No deployment workflow is enabled yet: choose
-a host and access policy before uploading family media.
+CI tests, builds, and deploys only checked-in public content, including the demo pack.
+It does not generate personal photo packs or read local gitignored photos.
+GitHub Pages is public; do not commit private photos or manifests for deployment.
 
 **Gitignored does not mean unpublished:** Vite copies generated content in `public/`
 into `dist/`. Inspect the output before deployment and use real host-level access
