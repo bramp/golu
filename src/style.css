@@ -109,18 +109,55 @@ button:disabled {
   background: #080e18;
   border-radius: 0.75rem;
   border: 2px solid #2b3c58;
+  max-width: min(100%, 72vh);
+  margin: 0 auto;
+}
+
+.golu-canvas {
+  position: relative;
+  width: 100%;
+  transform-origin: center center;
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .golu-image,
 .question-layout img {
   display: block;
   width: 100%;
-  height: min(48vh, 26rem);
-  object-fit: contain;
+  height: auto;
   background: #080e18;
-  border-radius: 0.75rem;
-  transform-origin: center center;
-  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.golu-spotlight {
+  position: absolute;
+  border: calc(3px / var(--stage-scale, 1)) solid #ffd700;
+  border-radius: calc(0.45rem / var(--stage-scale, 1));
+  box-shadow:
+    0 0 0 9999px rgba(8, 14, 24, 0.45),
+    0 0 calc(18px / var(--stage-scale, 1)) rgba(255, 215, 0, 0.8),
+    inset 0 0 calc(8px / var(--stage-scale, 1)) rgba(255, 215, 0, 0.35);
+  pointer-events: none;
+  transition:
+    left 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    top 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stage-actions,
+.reveal-actions {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.secondary-btn {
+  background: #1a2639;
+  border-color: #3b4f6b;
+  font-size: 0.85rem;
+  min-height: 2.75rem;
+  padding: 0.55rem 1rem;
 }
 
 .kiosk-card h2 {

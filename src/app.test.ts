@@ -40,9 +40,25 @@ describe("playable app", () => {
     expect(root.textContent).not.toContain("Quit to Kodi");
     expect(document.activeElement?.textContent).toBe("Start game");
     const kioskImg = root.querySelector<HTMLImageElement>("img");
+    const kioskCanvas = root.querySelector<HTMLElement>(".golu-canvas");
+    const spotlight = root.querySelector<HTMLElement>(".golu-spotlight");
     expect(kioskImg?.src).toContain("/golu/demo/camping.svg");
     expect(kioskImg?.dataset.zoomed).toBe("true");
-    expect(kioskImg?.style.transform).not.toBe("translate(0%, 0%) scale(1)");
+    expect(kioskCanvas?.style.transform).not.toBe("translate(0%, 0%) scale(1)");
+    expect(spotlight?.style.left).toBe("10%");
+    expect(spotlight?.style.top).toBe("52%");
+
+    click("Show full Golu");
+    expect(root.querySelector<HTMLImageElement>("img")?.dataset.zoomed).toBe(
+      "false",
+    );
+    expect(
+      root.querySelector<HTMLElement>(".golu-canvas")?.style.transform,
+    ).toBe("translate(0%, 0%) scale(1)");
+    click("Zoom to doll");
+    expect(root.querySelector<HTMLImageElement>("img")?.dataset.zoomed).toBe(
+      "true",
+    );
 
     click("Next doll");
     expect(root.textContent).toContain("Doll Spotlight (2 / 3)");

@@ -21,16 +21,28 @@ function button(text: string, action: () => void): HTMLButtonElement {
   return node;
 }
 
-export function regionTransform(region?: Region): string {
-  if (!region) return "translate(0%, 0%) scale(1)";
-  const scale = Math.min(
+export function regionScale(region?: Region): number {
+  if (!region) return 1;
+  return Math.min(
     4,
     Math.max(1.2, 0.85 / Math.max(region.width, region.height)),
   );
+}
+
+export function regionTransform(region?: Region): string {
+  if (!region) return "translate(0%, 0%) scale(1)";
+  const scale = regionScale(region);
   const centerX = region.x + region.width / 2;
   const centerY = region.y + region.height / 2;
-  const translateX = (0.5 - centerX) * 100 * scale;
-  const translateY = (0.5 - centerY) * 100 * scale;
+  const maxShift = (scale - 1) * 50;
+  const translateX = Math.max(
+    -maxShift,
+    Math.min(maxShift, (0.5 - centerX) * 100 * scale),
+  );
+  const translateY = Math.max(
+    -maxShift,
+    Math.min(maxShift, (0.5 - centerY) * 100 * scale),
+  );
   return `translate(${translateX.toFixed(2)}%, ${translateY.toFixed(2)}%) scale(${scale.toFixed(2)})`;
 }
 
@@ -53,6 +65,7 @@ export function mountApp(
   const pack = manifest.packs[0]!;
   let kioskIndex = 0;
   let quitting = false;
+  let peekFullGolu = false;
   let kioskTimer: ReturnType<typeof setInterval> | undefined;
 
   function mediaUrl(path: string): string {
@@ -67,46 +80,58 @@ export function mountApp(
     }
   }
 
-  function startKioskTimer(): void {
-    clearKioskTimer();
-    if (game.phase === "KIOSK_MODE" && !quitting && kioskIntervalMs > 0) {
-      kioskTimer = setInterval(() => {
-        kioskIndex = (kioskIndex + 1) % pack.questions.length;
-        render(false);
-      }, kioskIntervalMs);
+  function applyStageState(
+    stage: HTMLElement,
+    question: Question,
+    altText: string,
+    zoomed: boolean,
+    showSpotlight: boolean,
+  ): void {
+    const canvas = stage.querySelector<HTMLElement>(".golu-canvas");
+    const image = stage.querySelector<HTMLImageElement>(".golu-image");
+    if (!canvas || !image) return;
+
+    const isZoomed = zoomed && Boolean(question.region);
+    const activeRegion = isZoomed ? question.region : undefined;
+    const scale = regionScale(activeRegion);
+    const transform = regionTransform(activeRegion);
+    const nextSrc = mediaUrl(manifest.image ?? question.image);
+
+    if (image.src !== nextSrc) {
+      image.src = nextSrc;
     }
-  }
+    image.alt = altText;
+    image.dataset.zoomed = isZoomed ? "true" : "false";
+    canvas.dataset.zoomed = isZoomed ? "true" : "false";
+    canvas.style.setProperty("--stage-scale", scale.toFixed(2));
+    canvas.style.transform = transform;
 
-  function startGame(): void {
-    clearKioskTimer();
-    game.start(pack);
-    render();
-  }
-
-  function returnToKiosk(): void {
-    quitting = false;
-    game.kiosk();
-    render();
-  }
-
-  function nextDoll(): void {
-    kioskIndex = (kioskIndex + 1) % pack.questions.length;
-    render();
+    let spotlight = canvas.querySelector<HTMLElement>(".golu-spotlight");
+    if (showSpotlight && question.region) {
+      if (!spotlight) {
+        spotlight = element("div", undefined, "golu-spotlight");
+        spotlight.setAttribute("aria-hidden", "true");
+        canvas.append(spotlight);
+      }
+      spotlight.style.left = `${(question.region.x * 100).toFixed(2)}%`;
+      spotlight.style.top = `${(question.region.y * 100).toFixed(2)}%`;
+      spotlight.style.width = `${(question.region.width * 100).toFixed(2)}%`;
+      spotlight.style.height = `${(question.region.height * 100).toFixed(2)}%`;
+    } else {
+      spotlight?.remove();
+    }
   }
 
   function renderStage(
     question: Question,
     altText: string,
     zoomed = true,
+    showSpotlight = true,
   ): HTMLElement {
     const stage = element("div", undefined, "golu-stage");
+    const canvas = element("div", undefined, "golu-canvas");
     const image = element("img", undefined, "golu-image");
-    image.src = mediaUrl(manifest.image ?? question.image);
-    image.alt = altText;
-    image.dataset.zoomed = zoomed && question.region ? "true" : "false";
-    image.style.transform = zoomed
-      ? regionTransform(question.region)
-      : regionTransform(undefined);
+
     image.addEventListener("error", () => {
       const message = element(
         "p",
@@ -116,11 +141,131 @@ export function mountApp(
       message.role = "alert";
       stage.replaceWith(message);
     });
-    stage.append(image);
+
+    canvas.append(image);
+    stage.append(canvas);
+    applyStageState(stage, question, altText, zoomed, showSpotlight);
     return stage;
   }
 
+  function updateKioskDomInPlace(): boolean {
+    const layout = root.querySelector<HTMLElement>(".kiosk-layout");
+    const stage = layout?.querySelector<HTMLElement>(".golu-stage");
+    const card = layout?.querySelector<HTMLElement>(".kiosk-card");
+    if (!layout || !stage || !card) return false;
+
+    const spotlight = pack.questions[kioskIndex % pack.questions.length]!;
+    const dollName =
+      spotlight.name ?? spotlight.options[spotlight.correctIndex]!;
+    applyStageState(
+      stage,
+      spotlight,
+      `Golu spotlight: ${dollName}`,
+      !peekFullGolu,
+      true,
+    );
+
+    const progress = card.querySelector<HTMLElement>(".progress");
+    const heading = card.querySelector<HTMLElement>("h2");
+    const explanation = card.querySelector<HTMLElement>(".kiosk-explanation");
+    const zoomBtn = card.querySelector<HTMLButtonElement>(
+      'button[data-action="toggle-zoom"]',
+    );
+    if (progress) {
+      progress.textContent = `Doll Spotlight (${kioskIndex + 1} / ${pack.questions.length})`;
+    }
+    if (heading) heading.textContent = dollName;
+    if (explanation) explanation.textContent = spotlight.explanation;
+    if (zoomBtn) {
+      zoomBtn.textContent = peekFullGolu ? "Zoom to doll" : "Show full Golu";
+    }
+    return true;
+  }
+
+  function startKioskTimer(): void {
+    clearKioskTimer();
+    if (game.phase === "KIOSK_MODE" && !quitting && kioskIntervalMs > 0) {
+      kioskTimer = setInterval(() => {
+        kioskIndex = (kioskIndex + 1) % pack.questions.length;
+        peekFullGolu = false;
+        if (!updateKioskDomInPlace()) {
+          render(false);
+        }
+      }, kioskIntervalMs);
+    }
+  }
+
+  function startGame(): void {
+    clearKioskTimer();
+    peekFullGolu = false;
+    game.start(pack);
+    render();
+  }
+
+  function returnToKiosk(): void {
+    quitting = false;
+    peekFullGolu = false;
+    game.kiosk();
+    render();
+  }
+
+  function nextDoll(): void {
+    kioskIndex = (kioskIndex + 1) % pack.questions.length;
+    peekFullGolu = false;
+    if (!updateKioskDomInPlace()) {
+      render();
+    } else {
+      startKioskTimer();
+    }
+  }
+
+  function togglePeek(): void {
+    peekFullGolu = !peekFullGolu;
+    const stage = root.querySelector<HTMLElement>(".golu-stage");
+    const zoomBtn = root.querySelector<HTMLButtonElement>(
+      'button[data-action="toggle-zoom"]',
+    );
+    if (stage && zoomBtn) {
+      const activeQuestion =
+        game.phase === "KIOSK_MODE"
+          ? pack.questions[kioskIndex % pack.questions.length]!
+          : game.current;
+      const dollName =
+        activeQuestion.name ??
+        activeQuestion.options[activeQuestion.correctIndex]!;
+      const altText =
+        game.phase === "KIOSK_MODE"
+          ? `Golu spotlight: ${dollName}`
+          : "Photo for this question";
+      applyStageState(stage, activeQuestion, altText, !peekFullGolu, true);
+      zoomBtn.textContent = peekFullGolu ? "Zoom to doll" : "Show full Golu";
+      return;
+    }
+    render(false);
+  }
+
+  function zoomToggleButton(region?: Region): HTMLButtonElement | null {
+    if (!region) return null;
+    const btn = button(
+      peekFullGolu ? "Zoom to doll" : "Show full Golu",
+      togglePeek,
+    );
+    btn.dataset.action = "toggle-zoom";
+    btn.className = "secondary-btn";
+    return btn;
+  }
+
   function render(resetFocus = true): void {
+    const previousActive =
+      !resetFocus &&
+      document.activeElement instanceof HTMLButtonElement &&
+      root.contains(document.activeElement)
+        ? {
+            action: document.activeElement.dataset.action,
+            text: document.activeElement.textContent,
+          }
+        : null;
+
     root.replaceChildren();
     root.append(element("p", "GOLU / PHOTO TRIVIA", "eyebrow"));
     if (quitting) {
@@ -154,7 +299,12 @@ export function mountApp(
       }
 
       const layout = element("div", undefined, "question-layout kiosk-layout");
-      const stage = renderStage(spotlight, `Golu spotlight: ${dollName}`, true);
+      const stage = renderStage(
+        spotlight,
+        `Golu spotlight: ${dollName}`,
+        !peekFullGolu,
+        true,
+      );
       const card = element("div", undefined, "kiosk-card");
       card.append(
         element(
@@ -172,6 +322,8 @@ export function mountApp(
         button("Start game", startGame),
         button("Next doll", nextDoll),
       );
+      const zoomBtn = zoomToggleButton(spotlight.region);
+      if (zoomBtn) actions.append(zoomBtn);
       if (kodi) {
         actions.append(
           button("Quit to Kodi", () => {
@@ -194,7 +346,7 @@ export function mountApp(
           `${game.score} / ${game.questions.length} correct`,
           "score",
         ),
-        renderStage(firstQuestion, "Full Golu display", false),
+        renderStage(firstQuestion, "Full Golu display", false, false),
         button("Play again", startGame),
         button("Back to kiosk", returnToKiosk),
       );
@@ -210,7 +362,12 @@ export function mountApp(
         element("h1", question.prompt),
       );
       const layout = element("div", undefined, "question-layout");
-      const stage = renderStage(question, "Photo for this question", true);
+      const stage = renderStage(
+        question,
+        "Photo for this question",
+        !peekFullGolu,
+        true,
+      );
       const answers = element("div", undefined, "answers");
       answers.dataset.columns = "2";
       question.options.forEach((option, index) => {
@@ -233,23 +390,37 @@ export function mountApp(
       layout.append(stage, answers);
       root.append(layout);
       if (game.phase === "ANSWER_REVEAL") {
+        const revealActions = element("div", undefined, "reveal-actions");
+        revealActions.append(
+          button(
+            game.index + 1 === game.questions.length
+              ? "See results"
+              : "Next question",
+            () => {
+              peekFullGolu = false;
+              game.next();
+              render();
+            },
+          ),
+        );
+        const zoomBtn = zoomToggleButton(question.region);
+        if (zoomBtn) revealActions.append(zoomBtn);
         root.append(
           element(
             "p",
             game.selected === question.correctIndex ? "Correct!" : "Not quite!",
             "result",
           ),
-          element("p", question.explanation),
-          button(
-            game.index + 1 === game.questions.length
-              ? "See results"
-              : "Next question",
-            () => {
-              game.next();
-              render();
-            },
-          ),
+          element("p", question.explanation, "reveal-explanation"),
+          revealActions,
         );
+      } else {
+        const zoomBtn = zoomToggleButton(question.region);
+        if (zoomBtn) {
+          const stageActions = element("div", undefined, "stage-actions");
+          stageActions.append(zoomBtn);
+          root.append(stageActions);
+        }
       }
       const nextQuestion = game.questions[game.index + 1];
       if (nextQuestion) new Image().src = mediaUrl(nextQuestion.image);
@@ -262,6 +433,26 @@ export function mountApp(
       ),
     );
     if (resetFocus) {
+      focusFirst(root);
+    } else if (previousActive) {
+      const navButtons = Array.from(
+        root.querySelectorAll<HTMLButtonElement>(
+          "button[data-nav]:not(:disabled)",
+        ),
+      );
+      const restored =
+        (previousActive.action
+          ? navButtons.find(
+              (btn) => btn.dataset.action === previousActive.action,
+            )
+          : undefined) ??
+        navButtons.find((btn) => btn.textContent === previousActive.text) ??
+        navButtons[0];
+      navButtons.forEach((btn) => {
+        btn.tabIndex = btn === restored ? 0 : -1;
+      });
+      restored?.focus();
+    } else {
       focusFirst(root);
     }
   }
