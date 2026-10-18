@@ -58,6 +58,7 @@
   - [x] Map `Backspace` / `Escape` (TV remote "Back" button) to return to `KIOSK_MODE`.
 - [x] **Pointer / Touch Parity**
   - [x] Ensure standard mouse `click` and mobile `touchstart` events trigger the exact same selection handler and update focus state cleanly without ghost highlights on touch devices.
+  - [x] Require landscape orientation on mobile (`@media (orientation: portrait) and (max-width: 900px)`) with a full-screen "Rotate your phone to landscape" prompt and compact mobile-landscape HUD sizing.
 - [ ] **Cartoon Game Show Host Integration (`src/raja-bommai.ts`)**
   - [x] Build reusable SVG + GSAP `RajaBommaiHost` controller and animation studio (`studio.html`, `src/studio.ts`).
   - [ ] Mount `RajaBommaiHost` inside the main game view (`src/app.ts`) to react across `KIOSK_MODE`, `QUESTION_ACTIVE`, and `ANSWER_REVEAL`.

@@ -42,11 +42,15 @@ describe("playable app", () => {
     const kioskImg = root.querySelector<HTMLImageElement>("img");
     const kioskCanvas = root.querySelector<HTMLElement>(".golu-canvas");
     const spotlight = root.querySelector<HTMLElement>(".golu-spotlight");
+    const rotateOverlay = root.querySelector<HTMLElement>(".rotate-overlay");
     expect(kioskImg?.src).toContain("/golu/demo/camping.svg");
     expect(kioskImg?.dataset.zoomed).toBe("true");
     expect(kioskCanvas?.style.transform).not.toBe("translate(0%, 0%) scale(1)");
     expect(spotlight?.style.left).toBe("10%");
     expect(spotlight?.style.top).toBe("52%");
+    expect(rotateOverlay?.textContent).toContain(
+      "Rotate your phone to landscape",
+    );
 
     click("Show full Golu");
     expect(root.querySelector<HTMLImageElement>("img")?.dataset.zoomed).toBe(
