@@ -1,0 +1,37 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: detect-private-key
+  - repo: local
+    hooks:
+      - id: web-format
+        name: prettier
+        entry: npm run format:check
+        language: system
+        types_or: [javascript, ts, tsx, json, css, html, yaml, markdown]
+        pass_filenames: false
+      - id: web-analyze
+        name: web lint and typecheck
+        entry: make analyze-web
+        language: system
+        files: (\.[cm]?[jt]sx?$|^tsconfig\.json$|^package(-lock)?\.json$)
+        pass_filenames: false
+      - id: python-analyze
+        name: python lint and format
+        entry: make analyze-python
+        language: system
+        files: (\.py$|^pyproject\.toml$|^uv\.lock$)
+        pass_filenames: false
+      - id: tests
+        name: tests
+        entry: make test
+        language: system
+        files: (\.[cm]?[jt]sx?$|\.py$|^package(-lock)?\.json$|^pyproject\.toml$|^uv\.lock$)
+        pass_filenames: false

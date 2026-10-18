@@ -1,0 +1,154 @@
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  color: #f5f7fb;
+  background: #101827;
+  font-synthesis: none;
+  color-scheme: dark;
+  font-size: clamp(18px, 1.6vw, 30px);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+main {
+  max-width: 1600px;
+  min-height: 100dvh;
+  margin: auto;
+  padding: clamp(1.25rem, 5vw, 4rem);
+}
+
+h1 {
+  font-size: clamp(1.75rem, 3vw, 3rem);
+  line-height: 1.15;
+  margin: 0.5rem 0 1rem;
+}
+
+p {
+  line-height: 1.5;
+}
+
+.eyebrow {
+  color: #71e6c4;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+}
+
+.hint,
+.progress {
+  color: #b9c6db;
+  font-size: 0.8rem;
+}
+
+.hint {
+  margin-top: 2rem;
+}
+
+.notice {
+  border-left: 4px solid #71e6c4;
+  padding-left: 1rem;
+}
+
+.menu {
+  display: grid;
+  gap: 1rem;
+  max-width: 32rem;
+  margin-top: 2rem;
+}
+
+button {
+  font: inherit;
+  font-weight: 650;
+  background: #24334d;
+  color: inherit;
+  border: 2px solid #4c6080;
+  border-radius: 0.65rem;
+  min-height: 3.5rem;
+  padding: 0.8rem 1.2rem;
+  cursor: pointer;
+}
+
+button + button {
+  margin-left: 0.5rem;
+}
+
+.menu button,
+.answers button {
+  margin: 0;
+}
+
+button:hover:not(:disabled) {
+  background: #324866;
+}
+
+button:focus-visible {
+  outline: 4px solid #ffd700;
+  outline-offset: 5px;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+.question-layout {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  align-items: center;
+  gap: 2rem;
+}
+
+.question-layout img {
+  width: 100%;
+  height: min(48vh, 26rem);
+  object-fit: contain;
+  background: #080e18;
+  border-radius: 0.75rem;
+}
+
+.answers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.answers button {
+  overflow-wrap: anywhere;
+  min-height: 5rem;
+}
+
+.correct {
+  background: #135840;
+  border-color: #71e6c4;
+}
+
+.incorrect,
+.error {
+  background: #6e2335;
+  border-color: #ff99ad;
+}
+
+.score {
+  font-size: 2rem;
+  color: #71e6c4;
+}
+
+.result {
+  font-weight: 800;
+}
+
+@media (max-width: 760px) {
+  .question-layout {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .question-layout img {
+    height: 30vh;
+  }
+}

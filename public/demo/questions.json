@@ -1,0 +1,41 @@
+{
+  "version": "demo-1",
+  "title": "Golu",
+  "packs": [
+    {
+      "id": "demo",
+      "name": "A little outdoor adventure",
+      "questions": [
+        {
+          "id": "demo-tent",
+          "image": "demo/camping.svg",
+          "prompt": "What color is the tent?",
+          "options": ["Orange", "Blue", "Purple", "Green"],
+          "correctIndex": 0,
+          "explanation": "An orange tent beside a quiet mountain lake. These illustrations are demo content; add your own photos to make it personal."
+        },
+        {
+          "id": "demo-sky",
+          "image": "demo/camping.svg",
+          "prompt": "What's shining above the mountains?",
+          "options": ["The Moon", "The Sun", "A satellite", "A streetlight"],
+          "correctIndex": 1,
+          "explanation": "A golden sun lights up this illustrated campsite."
+        },
+        {
+          "id": "demo-water",
+          "image": "demo/camping.svg",
+          "prompt": "Where have we pitched our tent?",
+          "options": [
+            "In the city",
+            "On a glacier",
+            "Beside a lake",
+            "In a desert"
+          ],
+          "correctIndex": 2,
+          "explanation": "Mountains, water, and a tent: a perfect imaginary weekend."
+        }
+      ]
+    }
+  ]
+}

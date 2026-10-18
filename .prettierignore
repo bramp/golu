@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.venv/
+uv.lock
+package-lock.json
+raw_photos/
+public/assets/
+public/questions.json
+DESIGN.md

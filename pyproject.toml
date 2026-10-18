@@ -1,0 +1,27 @@
+[project]
+name = "golu-assets"
+version = "0.1.0"
+description = "Offline photo pipeline for Golu"
+requires-python = ">=3.11"
+dependencies = [
+    "pillow>=11.0.0",
+    "pillow-heif>=0.22.0",
+    "pyyaml>=6.0.2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.0",
+    "ruff>=0.14.0",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["scripts"]
