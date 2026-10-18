@@ -110,6 +110,7 @@ p {
   z-index: 1;
   width: min(100vw, calc(100dvh * var(--img-aspect, 1.3333)));
   max-height: 100dvh;
+  overflow: hidden;
   transform-origin: center center;
   transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -125,7 +126,7 @@ p {
   border: calc(3px / var(--stage-scale, 1)) solid #ffd700;
   border-radius: calc(0.45rem / var(--stage-scale, 1));
   box-shadow:
-    0 0 0 9999px rgba(8, 14, 24, 0.42),
+    0 0 0 120vmax rgba(8, 14, 24, 0.42),
     0 0 calc(18px / var(--stage-scale, 1)) rgba(255, 215, 0, 0.85),
     inset 0 0 calc(8px / var(--stage-scale, 1)) rgba(255, 215, 0, 0.35);
   pointer-events: none;
@@ -146,6 +147,57 @@ p {
   border: 1.5px solid rgba(113, 230, 196, 0.24);
   border-radius: 0.85rem;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
+.host-dock {
+  position: absolute;
+  top: max(clamp(0.75rem, 2vh, 1.4rem), env(safe-area-inset-top, 0px));
+  right: max(clamp(1rem, 2.5vw, 2.25rem), env(safe-area-inset-right, 0px));
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.start-game-btn {
+  background: linear-gradient(135deg, #1b6b52, #124938);
+  border-color: #71e6c4;
+  color: #f5f7fb;
+  font-size: clamp(0.85rem, 1.25vw, 1.05rem);
+  font-weight: 800;
+  min-height: 2.35rem;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+}
+
+.start-game-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #228264, #175c47);
+}
+
+.raja-host-stage {
+  width: clamp(5.5rem, 10.5vw, 8.75rem);
+  aspect-ratio: 600 / 750;
+  background: rgba(11, 18, 31, 0.78);
+  backdrop-filter: blur(14px);
+  border: 1.5px solid rgba(255, 215, 0, 0.45);
+  border-radius: 0.9rem;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.host-dock.is-kiosk .raja-host-stage {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.raja-host-stage .raja-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .hud-top {
@@ -197,16 +249,11 @@ p {
 }
 
 .menu {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(8.5rem, 1fr));
-  gap: 0.55rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
   margin: 0;
-}
-
-.menu button:first-child {
-  grid-column: 1 / -1;
-  background: #175c47;
-  border-color: #71e6c4;
+  min-width: 9rem;
 }
 
 button {
@@ -391,7 +438,7 @@ button:disabled {
   }
 }
 
-@media (orientation: portrait) and (max-width: 900px) {
+@media (orientation: portrait) and (max-width: 600px) {
   .rotate-overlay {
     display: flex;
   }
@@ -411,6 +458,24 @@ button:disabled {
 
   .hud-top {
     padding: 0.35rem 0.75rem;
+    max-width: calc(100% - 6.5rem);
+  }
+
+  .host-dock {
+    top: max(0.4rem, env(safe-area-inset-top, 0px));
+    right: max(0.85rem, env(safe-area-inset-right, 0px));
+    gap: 0.3rem;
+  }
+
+  .raja-host-stage {
+    width: 4rem;
+    border-radius: 0.65rem;
+  }
+
+  .start-game-btn {
+    min-height: 1.85rem;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.78rem;
   }
 
   h1 {

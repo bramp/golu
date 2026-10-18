@@ -1,5 +1,6 @@
 import { Game } from "./game";
 import type { Manifest, Question, Region } from "./manifest";
+import { RajaBommaiHost } from "./raja-bommai";
 import { focusFirst, installNavigation } from "./spatial-nav";
 
 function element<K extends keyof HTMLElementTagNameMap>(
@@ -140,6 +141,56 @@ export function mountApp(
   let peekFullGolu = false;
   let kioskTimer: ReturnType<typeof setTimeout> | undefined;
   let inactivityTimer: ReturnType<typeof setTimeout> | undefined;
+  let hostThinkTimer: ReturnType<typeof setTimeout> | undefined;
+
+  const hostStage = element("div", undefined, "raja-host-stage");
+  hostStage.setAttribute("aria-hidden", "true");
+  hostStage.addEventListener("click", () => {
+    if (game.phase === "KIOSK_MODE" && !quitting) {
+      startGame();
+    }
+  });
+  const host = new RajaBommaiHost(hostStage, {
+    initialState: "wave",
+    onStateChange(state) {
+      hostStage.dataset.hostState = state;
+    },
+  });
+
+  function clearHostThinkTimer(): void {
+    if (hostThinkTimer !== undefined) {
+      clearTimeout(hostThinkTimer);
+      hostThinkTimer = undefined;
+    }
+  }
+
+  function syncHostState(): void {
+    clearHostThinkTimer();
+    if (quitting) {
+      host.setState("wave");
+      return;
+    }
+    if (game.phase === "KIOSK_MODE") {
+      host.setState(kioskIndex === 0 ? "wave" : "asking");
+      host.speakFor(2400);
+    } else if (game.phase === "QUESTION_ACTIVE") {
+      host.setState("asking");
+      hostThinkTimer = setTimeout(() => {
+        if (game.phase === "QUESTION_ACTIVE" && !quitting) {
+          host.setState("thinking");
+        }
+      }, 2400);
+    } else if (game.phase === "ANSWER_REVEAL") {
+      if (game.selected === game.current.correctIndex) {
+        host.setState("excited");
+        host.speakFor(2200);
+      } else {
+        host.setState("sad");
+      }
+    } else if (game.phase === "GAME_OVER") {
+      host.setState(game.score > 0 ? "excited" : "wave");
+    }
+  }
 
   function mediaUrl(path: string): string {
     return new URL(path.replace(/^\//, ""), new URL(base, document.baseURI))
@@ -277,6 +328,7 @@ export function mountApp(
     if (zoomBtn) {
       zoomBtn.textContent = peekFullGolu ? "Zoom to doll" : "Show full Golu";
     }
+    syncHostState();
     return true;
   }
 
@@ -375,6 +427,7 @@ export function mountApp(
 
     root.replaceChildren();
     resetInactivityTimer();
+    syncHostState();
     if (quitting) {
       clearKioskTimer();
       const panel = element("div", undefined, "hud-panel quit-panel");
@@ -424,6 +477,12 @@ export function mountApp(
         );
       }
 
+      const hostDock = element("div", undefined, "host-dock is-kiosk");
+      const startBtn = button("Start game", startGame);
+      startBtn.className = "start-game-btn";
+      hostStage.title = "Click to start game";
+      hostDock.append(hostStage, startBtn);
+
       const hudBottom = element(
         "section",
         undefined,
@@ -443,10 +502,7 @@ export function mountApp(
 
       const actions = element("div", undefined, "menu");
       actions.dataset.columns = "1";
-      actions.append(
-        button("Start game", startGame),
-        button("Next doll", nextDoll),
-      );
+      actions.append(button("Next doll", nextDoll));
       const zoomBtn = zoomToggleButton(spotlight.region);
       if (zoomBtn) actions.append(zoomBtn);
       if (kodi) {
@@ -459,10 +515,13 @@ export function mountApp(
       }
       card.append(copy, actions);
       hudBottom.append(card, element("p", hintText, "hint"));
-      root.append(stage, hudTop, hudBottom);
+      root.append(stage, hudTop, hostDock, hudBottom);
       startKioskTimer();
     } else if (game.phase === "GAME_OVER") {
       clearKioskTimer();
+      hostStage.removeAttribute("title");
+      const hostDock = element("div", undefined, "host-dock");
+      hostDock.append(hostStage);
       const firstQuestion = pack.questions[0]!;
       const stage = renderStage(
         firstQuestion,
@@ -493,9 +552,12 @@ export function mountApp(
         actions,
         element("p", hintText, "hint"),
       );
-      root.append(stage, hudTop, hudBottom);
+      root.append(stage, hudTop, hostDock, hudBottom);
     } else {
       clearKioskTimer();
+      hostStage.removeAttribute("title");
+      const hostDock = element("div", undefined, "host-dock");
+      hostDock.append(hostStage);
       const question = game.current;
       const stage = renderStage(
         question,
@@ -585,7 +647,7 @@ export function mountApp(
       footerRow.append(element("p", hintText, "hint"));
       hudBottom.append(footerRow);
 
-      root.append(stage, hudTop, hudBottom);
+      root.append(stage, hudTop, hostDock, hudBottom);
       const nextQuestion = game.questions[game.index + 1];
       if (nextQuestion) new Image().src = mediaUrl(nextQuestion.image);
     }
@@ -643,6 +705,8 @@ export function mountApp(
   return () => {
     clearKioskTimer();
     clearInactivityTimer();
+    clearHostThinkTimer();
+    host.destroy();
     window.removeEventListener("keydown", onUserActivity);
     window.removeEventListener("pointerdown", onUserActivity);
     window.removeEventListener("touchstart", onUserActivity);

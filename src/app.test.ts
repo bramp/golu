@@ -43,6 +43,7 @@ describe("playable app", () => {
     const kioskCanvas = root.querySelector<HTMLElement>(".golu-canvas");
     const spotlight = root.querySelector<HTMLElement>(".golu-spotlight");
     const rotateOverlay = root.querySelector<HTMLElement>(".rotate-overlay");
+    const hostStage = root.querySelector<HTMLElement>(".raja-host-stage");
     expect(kioskImg?.src).toContain("/golu/demo/camping.svg");
     expect(kioskImg?.dataset.zoomed).toBe("true");
     expect(kioskCanvas?.style.transform).not.toBe("translate(0%, 0%) scale(1)");
@@ -51,6 +52,8 @@ describe("playable app", () => {
     expect(rotateOverlay?.textContent).toContain(
       "Rotate your phone to landscape",
     );
+    expect(hostStage?.querySelector("svg.raja-svg")).not.toBeNull();
+    expect(hostStage?.dataset.hostState).toBe("wave");
 
     click("Show full Golu");
     expect(root.querySelector<HTMLImageElement>("img")?.dataset.zoomed).toBe(
@@ -67,12 +70,15 @@ describe("playable app", () => {
     click("Next doll");
     expect(root.textContent).toContain("Doll Spotlight (2 / 3)");
     expect(root.textContent).toContain("Golden Sun");
+    expect(hostStage?.dataset.hostState).toBe("asking");
 
-    click("Start game");
+    hostStage?.click();
+    expect(hostStage?.dataset.hostState).toBe("asking");
     expect(root.querySelector("img")?.src).toContain("/golu/demo/camping.svg");
     for (const question of manifest.packs[0]!.questions) {
       click(question.options[question.correctIndex]!);
       expect(root.textContent).toContain("Correct!");
+      expect(hostStage?.dataset.hostState).toBe("excited");
       expect(root.querySelectorAll(".answers button:disabled")).toHaveLength(4);
       expect(document.activeElement?.textContent).toMatch(
         /Next question|See results/,
