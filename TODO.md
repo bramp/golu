@@ -44,8 +44,10 @@
 
 ## Phase 4: 10-Foot TV UI & Unified Input Navigation
 
-- [x] **TV-Safe Layout & Styling (`src/style.css`)**
-  - [x] Build a responsive viewport layout using CSS Grid.
+- [x] **TV-Safe Layout & Styling (`src/style.css`, `src/app.ts`)**
+  - [x] Lock the app to a strict fullscreen viewport (`100vw` × `100dvh`, `overflow: hidden`) so the page never scrolls on a TV or browser.
+  - [x] Make the Golu display image fill/cover the screen as a full-bleed stage (with a blurred ambient backdrop fill), rather than sitting in a small side box.
+  - [x] Overlay all text, prompts, doll spotlight cards, and answer buttons in translucent HUD panels on top of the fullscreen Golu image while keeping the highlighted doll region unobstructed.
   - [x] Style the photo stage with accurate region spotlight overlays and smooth pan/zoom transitions.
   - [x] Design the 2x2 answer button grid with large typography legible from across the living room.
   - [x] Add high-contrast `:focus-visible` styles (`4px solid #ffd700`) so TV remote users always see the active selection clearly.

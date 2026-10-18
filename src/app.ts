@@ -34,14 +34,19 @@ export function regionTransform(region?: Region): string {
   const scale = regionScale(region);
   const centerX = region.x + region.width / 2;
   const centerY = region.y + region.height / 2;
-  const maxShift = (scale - 1) * 50;
+  const maxShiftX = (scale - 1) * 50;
+  const maxShiftYTop = (scale - 1) * 50;
+  const maxShiftYBottom = (scale - 1) * 50 + 28;
   const translateX = Math.max(
-    -maxShift,
-    Math.min(maxShift, (0.5 - centerX) * 100 * scale),
+    -maxShiftX,
+    Math.min(maxShiftX, (0.5 - centerX) * 100 * scale),
   );
+  // Bias the zoomed region slightly above vertical center so it sits in the
+  // open viewport window above the bottom HUD overlay.
+  const rawTranslateY = ((0.5 - centerY) * scale - 0.1) * 100;
   const translateY = Math.max(
-    -maxShift,
-    Math.min(maxShift, (0.5 - centerY) * 100 * scale),
+    -maxShiftYBottom,
+    Math.min(maxShiftYTop, rawTranslateY),
   );
   return `translate(${translateX.toFixed(2)}%, ${translateY.toFixed(2)}%) scale(${scale.toFixed(2)})`;
 }
@@ -100,6 +105,7 @@ export function mountApp(
     if (image.src !== nextSrc) {
       image.src = nextSrc;
     }
+    stage.style.setProperty("--stage-bg", `url("${nextSrc}")`);
     image.alt = altText;
     image.dataset.zoomed = isZoomed ? "true" : "false";
     canvas.dataset.zoomed = isZoomed ? "true" : "false";
@@ -132,6 +138,15 @@ export function mountApp(
     const canvas = element("div", undefined, "golu-canvas");
     const image = element("img", undefined, "golu-image");
 
+    image.addEventListener("load", () => {
+      if (image.naturalWidth > 0 && image.naturalHeight > 0) {
+        canvas.style.setProperty(
+          "--img-aspect",
+          (image.naturalWidth / image.naturalHeight).toFixed(4),
+        );
+      }
+    });
+
     image.addEventListener("error", () => {
       const message = element(
         "p",
@@ -149,10 +164,9 @@ export function mountApp(
   }
 
   function updateKioskDomInPlace(): boolean {
-    const layout = root.querySelector<HTMLElement>(".kiosk-layout");
-    const stage = layout?.querySelector<HTMLElement>(".golu-stage");
-    const card = layout?.querySelector<HTMLElement>(".kiosk-card");
-    if (!layout || !stage || !card) return false;
+    const stage = root.querySelector<HTMLElement>(".golu-stage");
+    const card = root.querySelector<HTMLElement>(".kiosk-card");
+    if (!stage || !card) return false;
 
     const spotlight = pack.questions[kioskIndex % pack.questions.length]!;
     const dollName =
@@ -267,10 +281,11 @@ export function mountApp(
         : null;
 
     root.replaceChildren();
-    root.append(element("p", "GOLU / PHOTO TRIVIA", "eyebrow"));
     if (quitting) {
       clearKioskTimer();
-      root.append(
+      const panel = element("div", undefined, "hud-panel quit-panel");
+      panel.append(
+        element("p", "GOLU / PHOTO TRIVIA", "eyebrow"),
         element("h1", "Return to Kodi"),
         element(
           "p",
@@ -279,17 +294,34 @@ export function mountApp(
         ),
         button("Back to game", returnToKiosk),
       );
+      root.append(panel);
       focusFirst(root);
       return;
     }
+
+    const hintText =
+      "Arrow keys to move · Enter to choose · Back / Esc for kiosk";
 
     if (game.phase === "KIOSK_MODE") {
       const spotlight = pack.questions[kioskIndex % pack.questions.length]!;
       const dollName =
         spotlight.name ?? spotlight.options[spotlight.correctIndex]!;
-      root.append(element("h1", manifest.title));
+      const stage = renderStage(
+        spotlight,
+        `Golu spotlight: ${dollName}`,
+        !peekFullGolu,
+        true,
+      );
+
+      const hudTop = element("header", undefined, "hud-top");
+      const titleGroup = element("div", undefined, "hud-title-group");
+      titleGroup.append(
+        element("p", "GOLU / PHOTO TRIVIA", "eyebrow"),
+        element("h1", manifest.title),
+      );
+      hudTop.append(titleGroup);
       if (demo) {
-        root.append(
+        hudTop.append(
           element(
             "p",
             "Demo pack: build your own Golu photo and doll regions with make assets.",
@@ -298,15 +330,14 @@ export function mountApp(
         );
       }
 
-      const layout = element("div", undefined, "question-layout kiosk-layout");
-      const stage = renderStage(
-        spotlight,
-        `Golu spotlight: ${dollName}`,
-        !peekFullGolu,
-        true,
+      const hudBottom = element(
+        "section",
+        undefined,
+        "hud-bottom kiosk-layout",
       );
       const card = element("div", undefined, "kiosk-card");
-      card.append(
+      const copy = element("div", undefined, "kiosk-copy");
+      copy.append(
         element(
           "p",
           `Doll Spotlight (${kioskIndex + 1} / ${pack.questions.length})`,
@@ -332,41 +363,71 @@ export function mountApp(
           }),
         );
       }
-      card.append(actions);
-      layout.append(stage, card);
-      root.append(layout);
+      card.append(copy, actions);
+      hudBottom.append(card, element("p", hintText, "hint"));
+      root.append(stage, hudTop, hudBottom);
       startKioskTimer();
     } else if (game.phase === "GAME_OVER") {
       clearKioskTimer();
       const firstQuestion = pack.questions[0]!;
-      root.append(
+      const stage = renderStage(
+        firstQuestion,
+        "Full Golu display",
+        false,
+        false,
+      );
+      const hudTop = element("header", undefined, "hud-top");
+      hudTop.append(element("p", "GOLU / PHOTO TRIVIA", "eyebrow"));
+
+      const hudBottom = element(
+        "section",
+        undefined,
+        "hud-bottom gameover-card",
+      );
+      const actions = element("div", undefined, "gameover-actions");
+      actions.append(
+        button("Play again", startGame),
+        button("Back to kiosk", returnToKiosk),
+      );
+      hudBottom.append(
         element("h1", "That's a wrap!"),
         element(
           "p",
           `${game.score} / ${game.questions.length} correct`,
           "score",
         ),
-        renderStage(firstQuestion, "Full Golu display", false, false),
-        button("Play again", startGame),
-        button("Back to kiosk", returnToKiosk),
+        actions,
+        element("p", hintText, "hint"),
       );
+      root.append(stage, hudTop, hudBottom);
     } else {
       clearKioskTimer();
       const question = game.current;
-      root.append(
-        element(
-          "p",
-          `Question ${game.index + 1} / ${game.questions.length} · Score ${game.score}`,
-          "progress",
-        ),
-        element("h1", question.prompt),
-      );
-      const layout = element("div", undefined, "question-layout");
       const stage = renderStage(
         question,
         "Photo for this question",
         !peekFullGolu,
         true,
+      );
+
+      const hudTop = element("header", undefined, "hud-top");
+      const metaRow = element("div", undefined, "hud-meta-row");
+      metaRow.append(
+        element("p", "GOLU / PHOTO TRIVIA", "eyebrow"),
+        element(
+          "p",
+          `Question ${game.index + 1} / ${game.questions.length} · Score ${game.score}`,
+          "progress",
+        ),
+      );
+      hudTop.append(metaRow, element("h1", question.prompt));
+
+      const hudBottom = element(
+        "section",
+        undefined,
+        game.phase === "ANSWER_REVEAL"
+          ? "hud-bottom question-layout is-reveal"
+          : "hud-bottom question-layout",
       );
       const answers = element("div", undefined, "answers");
       answers.dataset.columns = "2";
@@ -387,9 +448,10 @@ export function mountApp(
         }
         answers.append(answer);
       });
-      layout.append(stage, answers);
-      root.append(layout);
+      hudBottom.append(answers);
+
       if (game.phase === "ANSWER_REVEAL") {
+        const revealCard = element("div", undefined, "reveal-card");
         const revealActions = element("div", undefined, "reveal-actions");
         revealActions.append(
           button(
@@ -405,7 +467,7 @@ export function mountApp(
         );
         const zoomBtn = zoomToggleButton(question.region);
         if (zoomBtn) revealActions.append(zoomBtn);
-        root.append(
+        revealCard.append(
           element(
             "p",
             game.selected === question.correctIndex ? "Correct!" : "Not quite!",
@@ -414,24 +476,25 @@ export function mountApp(
           element("p", question.explanation, "reveal-explanation"),
           revealActions,
         );
-      } else {
+        hudBottom.append(revealCard);
+      }
+
+      const footerRow = element("div", undefined, "hud-footer-row");
+      if (game.phase === "QUESTION_ACTIVE") {
         const zoomBtn = zoomToggleButton(question.region);
         if (zoomBtn) {
           const stageActions = element("div", undefined, "stage-actions");
           stageActions.append(zoomBtn);
-          root.append(stageActions);
+          footerRow.append(stageActions);
         }
       }
+      footerRow.append(element("p", hintText, "hint"));
+      hudBottom.append(footerRow);
+
+      root.append(stage, hudTop, hudBottom);
       const nextQuestion = game.questions[game.index + 1];
       if (nextQuestion) new Image().src = mediaUrl(nextQuestion.image);
     }
-    root.append(
-      element(
-        "p",
-        "Arrow keys to move · Enter to choose · Back / Esc for kiosk",
-        "hint",
-      ),
-    );
     if (resetFocus) {
       focusFirst(root);
     } else if (previousActive) {
