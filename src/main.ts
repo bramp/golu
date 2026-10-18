@@ -1,6 +1,9 @@
 import { mountApp } from "./app";
 import { loadManifest } from "./manifest";
+import { registerServiceWorker } from "./sw-register";
 import "./style.css";
+
+void registerServiceWorker(import.meta.env.BASE_URL);
 
 const root = document.querySelector<HTMLElement>("#app");
 if (!root) throw new Error("Missing application root.");

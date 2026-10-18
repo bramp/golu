@@ -79,11 +79,11 @@
 
 ## Phase 5: Deployment & Online Hosting
 
-- [ ] **Production Build & Offline Caching**
-  - [ ] Add a minimal Service Worker (`public/sw.js`) or `vite-plugin-pwa` to cache the app shell and visited WebP assets locally for instant reloads on the Kodi HTPC.
-  - [ ] Run `npm run build` and test the production output locally using `npx vite preview`.
-- [ ] **Static Hosting Setup**
-  - [ ] Deploy the `dist/` directory to Cloudflare Pages (or GitHub Pages).
+- [x] **Production Build & Offline Caching**
+  - [x] Add a minimal Service Worker (`public/sw.js`, `src/sw-register.ts`) to cache the app shell and visited WebP assets locally for instant reloads on the Kodi HTPC.
+  - [x] Run `npm run build` and test the production output locally using `npx vite preview`.
+- [x] **Static Hosting Setup**
+  - [x] Deploy the `dist/` directory to GitHub Pages (`golu.bramp.net` via `.github/workflows/test.yml`).
   - [ ] _(Optional)_ If the photo set grows large, upload `public/assets/*.webp` to a Cloudflare R2 bucket and set `Cache-Control: public, max-age=31536000, immutable`.
 - [ ] **Privacy / Access Control**
   - [ ] Configure a Cloudflare Access policy or add a lightweight client-side passcode gate if the family/travel photos shouldn't be publicly indexed.
