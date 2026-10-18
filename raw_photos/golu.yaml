@@ -1,0 +1,178 @@
+title: Navaratri Golu Trivia
+pack: Our Golu Padi
+image: PXL_20261018_153658417.jpg
+prompt: Which doll or set is highlighted on the Golu?
+dolls:
+- name: Meenakshi Amman (Green)
+  region:
+    x: 0.525
+    y: 0.052
+    width: 0.046
+    height: 0.172
+  explanation: The tutelary goddess of Madurai, an avatar of Parvati, depicted with green skin and holding
+    a parrot on her shoulder. The famous Madurai Meenakshi Temple celebrates a massive annual festival
+    reenacting her celestial wedding (Meenakshi Tirukalyanam) to Lord Shiva (Sundareswarar).
+- name: Ananthasayana Vishnu (Ranganatha) / Reclining Deity
+  region:
+    x: 0.164
+    y: 0.104
+    width: 0.063
+    height: 0.122
+  explanation: A black stone-style sculpture depicting a reclining deity resting on a serpent bed. In
+    South Indian temples like Srirangam, Vishnu reclines on the multi-headed serpent Adi Shesha, symbolizing
+    calm awareness amidst the cosmic ocean of creation.
+- name: Radha & Krishna with Cow
+  region:
+    x: 0.245
+    y: 0.082
+    width: 0.081
+    height: 0.15
+  explanation: Lord Krishna playing his flute alongside Radha, with a small calf resting at their feet.
+    Their pairing represents the union of the individual soul (Jivatma) with the divine (Paramatma), a
+    central theme of Bhakti poetry.
+- name: Rama Darbar (Hanuman, Sita, Rama, Lakshmana)
+  region:
+    x: 0.321
+    y: 0.036
+    width: 0.174
+    height: 0.191
+  explanation: 'A classic set of four dolls from the epic Ramayana: Lord Hanuman standing in devotion,
+    Goddess Sita, Lord Rama holding his bow (Kodanda), and his loyal brother Lakshmana. Navaratri coincides
+    with the celebration of Rama''s victory over Ravana (Vijayadashami), making the Rama Darbar one of
+    the most auspicious centerpieces on the top tier of a Golu.'
+- name: Garuda / Brass Deity Figurine
+  region:
+    x: 0.48
+    y: 0.159
+    width: 0.047
+    height: 0.075
+  explanation: An ornate brass figurine placed at the feet of the Rama Darbar and Vishnu dolls. Brass
+    idols (often passed down across generations as family heirlooms) are frequently integrated alongside
+    clay/papier-mâché Golu dolls.
+- name: Saraswati (Standing with Veena)
+  region:
+    x: 0.569
+    y: 0.056
+    width: 0.05
+    height: 0.171
+  explanation: The Hindu goddess of knowledge, music, arts, and wisdom, playing the traditional South
+    Indian veena. The final three days of Navaratri are dedicated to Saraswati Puja, when books, musical
+    instruments, and tools are placed near the Golu to be blessed.
+- name: Andal
+  region:
+    x: 0.613
+    y: 0.088
+    width: 0.048
+    height: 0.136
+  explanation: The only female saint among the twelve Alvars (poet-saints of South India), recognizable
+    by her classic side-bun hairstyle (Andal Kondai) and parrot. Her Tamil devotional poem, the Thiruppavai
+    (30 stanzas), is sung every morning during the Tamil month of Margazhi.
+- name: Goddess Parvati / Karumari Amman
+  region:
+    x: 0.661
+    y: 0.019
+    width: 0.057
+    height: 0.204
+  explanation: A tall, crowned four-armed form of the Divine Mother holding sacred attributes. Because
+    Navaratri celebrates the feminine divine (Shakti), placing a prominent Amman doll on the highest step
+    anchors the spiritual theme of the display.
+- name: Brass Diya with Sacred Weapons (Shankha, Chakra, Gada)
+  region:
+    x: 0.706
+    y: 0.063
+    width: 0.087
+    height: 0.161
+  explanation: A decorative brass lamp surrounded by the emblems of Lord Vishnu—conch, discus, mace, and
+    lotus—framed by two silver Kuthu Vilakku lamps on either end of the shelf. Lighting lamps around the
+    Golu every evening invites auspiciousness before neighbors gather to sing devotional songs and exchange
+    tamboolam.
+- name: Ashta Lakshmi Set (With Padmavati & Saraswati)
+  region:
+    x: 0.128
+    y: 0.258
+    width: 0.681
+    height: 0.176
+  explanation: 'A complete row dedicated to the Eight Forms of Goddess Lakshmi (Ashta Lakshmi) seated
+    on lotuses, flanked by an additional Devi on the far left and Goddess Saraswati on the far right.
+    Ashta Lakshmi represents the eight distinct sources of wealth: spirituality (Adi), food/harvest (Dhanya),
+    courage (Dhairya), sovereignty/elephants (Gaja), progeny (Santana), victory (Vijaya), knowledge (Vidya),
+    and monetary prosperity (Dhana).'
+- name: Gaja Lakshmi
+  region:
+    x: 0.381
+    y: 0.258
+    width: 0.103
+    height: 0.161
+  explanation: The centerpiece of the second row, showing Goddess Lakshmi flanked by two white elephants
+    pouring sacred water over her from golden pots. Gaja Lakshmi symbolizes royal power, abundance, and
+    the fertility brought by monsoon rains (historically associated with clouds and elephants).
+- name: Santana Lakshmi
+  region:
+    x: 0.48
+    y: 0.261
+    width: 0.068
+    height: 0.16
+  explanation: Goddess Lakshmi seated with a child on her lap, representing the wealth of family, healthy
+    children, and lineage. Unlike other forms of Lakshmi who have four arms, Santana Lakshmi is often
+    depicted with six arms, holding two kalashas (water pots), a sword, a shield, and protecting the child.
+- name: Dashavatara Set (Ten Avatars of Vishnu)
+  region:
+    x: 0.127
+    y: 0.425
+    width: 0.66
+    height: 0.207
+  explanation: 'The ten primary incarnations of Lord Vishnu spanning cosmic history, from left to right:
+    Matsya (fish), Kurma (tortoise), Varaha (boar), Narasimha (half-man/half-lion), Vamana (dwarf sage),
+    Parashurama (warrior with axe), Rama (prince with bow), Balarama (with plow), Krishna (playing flute),
+    and Kalki/Hayagriva (horse-headed form). Many commentators note a striking parallel between the Dashavatara
+    sequence and biological evolution: starting in water (Matsya), moving to amphibians (Kurma), land
+    mammals (Varaha), half-human (Narasimha), and developing into complex human societies.'
+- name: Pandharpur Bhakti Saints & Dasa Koota
+  region:
+    x: 0.161
+    y: 0.468
+    width: 0.389
+    height: 0.189
+  explanation: 'A collection of revered poet-saints in front of the Dashavatara: includes Purandara Dasa
+    / Tukaram (with tambura and chipla), Raghavendra Swamy (seated in yellow robes), Kanaka Dasa, and
+    Tyagaraja / Narada. Purandara Dasa is celebrated as the ''Pitamaha'' (grandfather) of Carnatic music
+    for structuring the beginner lessons (Sarali Varisai) still taught to music students today.'
+- name: Vithoba (Vitthala) and Rakhumai
+  region:
+    x: 0.655
+    y: 0.499
+    width: 0.095
+    height: 0.147
+  explanation: Lord Vitthala (a form of Krishna worshipped in Pandharpur, Maharashtra) standing with his
+    hands on his hips on a brick, alongside his consort Rakhumai (Rukmini). According to legend, Vitthala
+    stood on a brick (vit) tossed out by his devotee Pundalik, who asked the Lord to wait while he finished
+    serving his elderly parents.
+- name: Rajasthani Dandiya / Garba & Folk Musicians
+  region:
+    x: 0.087
+    y: 0.771
+    width: 0.325
+    height: 0.151
+  explanation: A lively village scene featuring miniature folk musicians playing drums and instruments
+    on the left, dancers with dandiya sticks on the right, and a centerpiece of Radha and Krishna playing
+    chess. The bottom tiers of a traditional Golu always transition from gods and saints to everyday human
+    life, community festivities, and cultural arts—reflecting the cosmic hierarchy.
+- name: Lord Ganesha Idols
+  region:
+    x: 0.405
+    y: 0.654
+    width: 0.119
+    height: 0.213
+  explanation: A large four-armed seated Ganesha flanked by a smaller Ganesha playing the mridangam drum.
+    Even before setting up the Golu steps on Mahalaya Amavasya, a small Ganesha (often made of turmeric)
+    is worshipped first to ensure the festival proceeds without obstacles.
+- name: Carved Elephant Parade
+  region:
+    x: 0.556
+    y: 0.708
+    width: 0.32
+    height: 0.201
+  explanation: A collection of intricately carved wooden and stone-finished elephants of varying sizes
+    arranged in a family procession. In Indian tradition, elephants symbolize royalty, wisdom, and good
+    luck; displaying an odd or graduated number of animal figurines adds visual harmony to the base of
+    the Golu.

@@ -1,0 +1,236 @@
+[
+  {
+    "shelf": 1,
+    "position": "Top Left",
+    "name": "Meenakshi Amman (Green)",
+    "box_2d": [
+      52,
+      525,
+      224,
+      571
+    ],
+    "description": "The tutelary goddess of Madurai, an avatar of Parvati, depicted with green skin and holding a parrot on her shoulder.",
+    "fun_fact": "The famous Madurai Meenakshi Temple celebrates a massive annual festival reenacting her celestial wedding (Meenakshi Tirukalyanam) to Lord Shiva (Sundareswarar)."
+  },
+  {
+    "shelf": 1,
+    "position": "Top Left (Far Left)",
+    "name": "Ananthasayana Vishnu (Ranganatha) / Reclining Deity",
+    "box_2d": [
+      104,
+      164,
+      226,
+      227
+    ],
+    "description": "A black stone-style sculpture depicting a reclining deity resting on a serpent bed.",
+    "fun_fact": "In South Indian temples like Srirangam, Vishnu reclines on the multi-headed serpent Adi Shesha, symbolizing calm awareness amidst the cosmic ocean of creation."
+  },
+  {
+    "shelf": 1,
+    "position": "Top Left-Center",
+    "name": "Radha & Krishna with Cow",
+    "box_2d": [
+      82,
+      245,
+      232,
+      326
+    ],
+    "description": "Lord Krishna playing his flute alongside Radha, with a small calf resting at their feet.",
+    "fun_fact": "Their pairing represents the union of the individual soul (Jivatma) with the divine (Paramatma), a central theme of Bhakti poetry."
+  },
+  {
+    "shelf": 1,
+    "position": "Top Center",
+    "name": "Rama Darbar (Hanuman, Sita, Rama, Lakshmana)",
+    "box_2d": [
+      36,
+      321,
+      227,
+      495
+    ],
+    "description": "A classic set of four dolls from the epic Ramayana: Lord Hanuman standing in devotion, Goddess Sita, Lord Rama holding his bow (Kodanda), and his loyal brother Lakshmana.",
+    "fun_fact": "Navaratri coincides with the celebration of Rama's victory over Ravana (Vijayadashami), making the Rama Darbar one of the most auspicious centerpieces on the top tier of a Golu."
+  },
+  {
+    "shelf": 1,
+    "position": "Top Center (Front)",
+    "name": "Garuda / Brass Deity Figurine",
+    "box_2d": [
+      159,
+      480,
+      234,
+      527
+    ],
+    "description": "An ornate brass figurine placed at the feet of the Rama Darbar and Vishnu dolls.",
+    "fun_fact": "Brass idols (often passed down across generations as family heirlooms) are frequently integrated alongside clay/papier-mâché Golu dolls."
+  },
+  {
+    "shelf": 1,
+    "position": "Top Right-Center",
+    "name": "Saraswati (Standing with Veena)",
+    "box_2d": [
+      56,
+      569,
+      227,
+      619
+    ],
+    "description": "The Hindu goddess of knowledge, music, arts, and wisdom, playing the traditional South Indian veena.",
+    "fun_fact": "The final three days of Navaratri are dedicated to Saraswati Puja, when books, musical instruments, and tools are placed near the Golu to be blessed."
+  },
+  {
+    "shelf": 1,
+    "position": "Top Right",
+    "name": "Andal",
+    "box_2d": [
+      88,
+      613,
+      224,
+      661
+    ],
+    "description": "The only female saint among the twelve Alvars (poet-saints of South India), recognizable by her classic side-bun hairstyle (Andal Kondai) and parrot.",
+    "fun_fact": "Her Tamil devotional poem, the Thiruppavai (30 stanzas), is sung every morning during the Tamil month of Margazhi."
+  },
+  {
+    "shelf": 1,
+    "position": "Top Right",
+    "name": "Goddess Parvati / Karumari Amman",
+    "box_2d": [
+      19,
+      661,
+      223,
+      718
+    ],
+    "description": "A tall, crowned four-armed form of the Divine Mother holding sacred attributes.",
+    "fun_fact": "Because Navaratri celebrates the feminine divine (Shakti), placing a prominent Amman doll on the highest step anchors the spiritual theme of the display."
+  },
+  {
+    "shelf": 1,
+    "position": "Top Far Right",
+    "name": "Brass Diya with Sacred Weapons (Shankha, Chakra, Gada)",
+    "box_2d": [
+      63,
+      706,
+      224,
+      793
+    ],
+    "description": "A decorative brass lamp surrounded by the emblems of Lord Vishnu—conch, discus, mace, and lotus—framed by two silver Kuthu Vilakku lamps on either end of the shelf.",
+    "fun_fact": "Lighting lamps around the Golu every evening invites auspiciousness before neighbors gather to sing devotional songs and exchange tamboolam."
+  },
+  {
+    "shelf": 2,
+    "position": "Second Tier (Full Row)",
+    "name": "Ashta Lakshmi Set (With Padmavati & Saraswati)",
+    "box_2d": [
+      258,
+      128,
+      434,
+      809
+    ],
+    "description": "A complete row dedicated to the Eight Forms of Goddess Lakshmi (Ashta Lakshmi) seated on lotuses, flanked by an additional Devi on the far left and Goddess Saraswati on the far right.",
+    "fun_fact": "Ashta Lakshmi represents the eight distinct sources of wealth: spirituality (Adi), food/harvest (Dhanya), courage (Dhairya), sovereignty/elephants (Gaja), progeny (Santana), victory (Vijaya), knowledge (Vidya), and monetary prosperity (Dhana)."
+  },
+  {
+    "shelf": 2,
+    "position": "Second Tier (Center)",
+    "name": "Gaja Lakshmi",
+    "box_2d": [
+      258,
+      381,
+      419,
+      484
+    ],
+    "description": "The centerpiece of the second row, showing Goddess Lakshmi flanked by two white elephants pouring sacred water over her from golden pots.",
+    "fun_fact": "Gaja Lakshmi symbolizes royal power, abundance, and the fertility brought by monsoon rains (historically associated with clouds and elephants)."
+  },
+  {
+    "shelf": 2,
+    "position": "Second Tier (Right of Center)",
+    "name": "Santana Lakshmi",
+    "box_2d": [
+      261,
+      480,
+      421,
+      548
+    ],
+    "description": "Goddess Lakshmi seated with a child on her lap, representing the wealth of family, healthy children, and lineage.",
+    "fun_fact": "Unlike other forms of Lakshmi who have four arms, Santana Lakshmi is often depicted with six arms, holding two kalashas (water pots), a sword, a shield, and protecting the child."
+  },
+  {
+    "shelf": 3,
+    "position": "Third Tier (Back Row)",
+    "name": "Dashavatara Set (Ten Avatars of Vishnu)",
+    "box_2d": [
+      425,
+      127,
+      632,
+      787
+    ],
+    "description": "The ten primary incarnations of Lord Vishnu spanning cosmic history, from left to right: Matsya (fish), Kurma (tortoise), Varaha (boar), Narasimha (half-man/half-lion), Vamana (dwarf sage), Parashurama (warrior with axe), Rama (prince with bow), Balarama (with plow), Krishna (playing flute), and Kalki/Hayagriva (horse-headed form).",
+    "fun_fact": "Many commentators note a striking parallel between the Dashavatara sequence and biological evolution: starting in water (Matsya), moving to amphibians (Kurma), land mammals (Varaha), half-human (Narasimha), and developing into complex human societies."
+  },
+  {
+    "shelf": 3,
+    "position": "Third Tier (Front Row - Left to Center)",
+    "name": "Pandharpur Bhakti Saints & Dasa Koota",
+    "box_2d": [
+      468,
+      161,
+      657,
+      550
+    ],
+    "description": "A collection of revered poet-saints in front of the Dashavatara: includes Purandara Dasa / Tukaram (with tambura and chipla), Raghavendra Swamy (seated in yellow robes), Kanaka Dasa, and Tyagaraja / Narada.",
+    "fun_fact": "Purandara Dasa is celebrated as the 'Pitamaha' (grandfather) of Carnatic music for structuring the beginner lessons (Sarali Varisai) still taught to music students today."
+  },
+  {
+    "shelf": 3,
+    "position": "Third Tier (Front Row - Right)",
+    "name": "Vithoba (Vitthala) and Rakhumai",
+    "box_2d": [
+      499,
+      655,
+      646,
+      750
+    ],
+    "description": "Lord Vitthala (a form of Krishna worshipped in Pandharpur, Maharashtra) standing with his hands on his hips on a brick, alongside his consort Rakhumai (Rukmini).",
+    "fun_fact": "According to legend, Vitthala stood on a brick (vit) tossed out by his devotee Pundalik, who asked the Lord to wait while he finished serving his elderly parents."
+  },
+  {
+    "shelf": 4,
+    "position": "Bottom Left",
+    "name": "Rajasthani Dandiya / Garba & Folk Musicians",
+    "box_2d": [
+      771,
+      87,
+      922,
+      412
+    ],
+    "description": "A lively village scene featuring miniature folk musicians playing drums and instruments on the left, dancers with dandiya sticks on the right, and a centerpiece of Radha and Krishna playing chess.",
+    "fun_fact": "The bottom tiers of a traditional Golu always transition from gods and saints to everyday human life, community festivities, and cultural arts—reflecting the cosmic hierarchy."
+  },
+  {
+    "shelf": 4,
+    "position": "Bottom Center",
+    "name": "Lord Ganesha Idols",
+    "box_2d": [
+      654,
+      405,
+      867,
+      524
+    ],
+    "description": "A large four-armed seated Ganesha flanked by a smaller Ganesha playing the mridangam drum.",
+    "fun_fact": "Even before setting up the Golu steps on Mahalaya Amavasya, a small Ganesha (often made of turmeric) is worshipped first to ensure the festival proceeds without obstacles."
+  },
+  {
+    "shelf": 4,
+    "position": "Bottom Right",
+    "name": "Carved Elephant Parade",
+    "box_2d": [
+      708,
+      556,
+      909,
+      876
+    ],
+    "description": "A collection of intricately carved wooden and stone-finished elephants of varying sizes arranged in a family procession.",
+    "fun_fact": "In Indian tradition, elephants symbolize royalty, wisdom, and good luck; displaying an odd or graduated number of animal figurines adds visual harmony to the base of the Golu."
+  }
+]

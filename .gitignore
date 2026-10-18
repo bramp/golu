@@ -12,5 +12,5 @@ coverage/
 !.env.example
 raw_photos/*
 !raw_photos/.gitkeep
-public/assets/
-public/questions.json
+!raw_photos/golu.yaml
+!raw_photos/facts.json

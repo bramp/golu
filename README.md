@@ -23,10 +23,10 @@ explore kiosk mode and play immediately without providing or publishing personal
 
 ```text
 src/                     Vanilla TypeScript app, kiosk/trivia state machine, Raja Bommai rig, tests
-public/demo/             Public-safe demo manifest and illustration with region coordinates
-public/questions.json    Generated personal question manifest (gitignored)
-public/assets/           Generated WebP master Golu image (gitignored)
-raw_photos/              Private input Golu photo and golu.yaml/json config (gitignored)
+public/demo/             Fallback demo manifest and illustration with region coordinates
+public/questions.json    Generated question manifest
+public/assets/           Generated WebP master Golu image (EXIF/GPS stripped)
+raw_photos/              Input Golu config (`golu.yaml`) and local source photos (`*.jpg` gitignored)
 scripts/build_assets.py  Offline Python CLI
 tests/                   Asset pipeline tests
 .github/                 CI and dependency update configuration
@@ -168,9 +168,9 @@ make preview
 
 Vite uses a relative base, so deployment under a subdirectory works. The runtime
 resolves generated image URLs relative to that base. Serve over HTTP(S), not `file://`.
-CI tests, builds, and deploys only checked-in public content, including the demo pack.
-It does not generate personal photo packs or read local gitignored photos.
-GitHub Pages is public; do not commit private photos or manifests for deployment.
+CI tests, builds, and deploys the checked-in `public/questions.json` and
+`public/assets/` bundle (generated via `make assets`, which strips EXIF/GPS metadata
+from the raw camera photo).
 
 **Gitignored does not mean unpublished:** Vite copies generated content in `public/`
 into `dist/`. Inspect the output before deployment and use real host-level access
