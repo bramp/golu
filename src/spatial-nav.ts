@@ -11,6 +11,7 @@ export function focusFirst(root: HTMLElement): void {
 export function installNavigation(
   root: HTMLElement,
   onBack: () => void,
+  onNavigate?: () => void,
 ): () => void {
   function onFocus(event: FocusEvent): void {
     if (
@@ -59,6 +60,9 @@ export function installNavigation(
       index === -1
         ? 0
         : Math.max(0, Math.min(index + step, buttons.length - 1));
+    if (next !== index) {
+      onNavigate?.();
+    }
     buttons[next]?.focus();
   }
 

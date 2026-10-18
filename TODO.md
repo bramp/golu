@@ -67,12 +67,13 @@
   - [ ] Add `edge-tts` to `pyproject.toml` and synthesize content-addressed `.mp3` clips (`en-IN-PrabhatNeural`) in `scripts/build_assets.py` for each doll (`spotlight`, `question`, `reveal`) and shared host reactions (`welcome`, `correct`, `wrong`).
   - [ ] Extend `Manifest` and `Question` types in `src/manifest.ts` to validate optional `hostAudio` and per-question `audio` paths.
   - [ ] Add `setMouthLevel(level: number)` to `RajaBommaiHost` (`src/raja-bommai.ts`) and build a Web Audio `AnalyserNode` voice player that drives real-time RMS amplitude lip-sync (`#mouth-open-smile` `scaleY`, `#mouth-talk-closed`, `#mustache`, and head/brow emphasis).
-  - [ ] Wire voiceover playback into `src/app.ts` across `KIOSK_MODE` (advancing after narration finishes), `QUESTION_ACTIVE` (switching from `asking` to `thinking` when prompt audio ends), and `ANSWER_REVEAL` (stinger + explanation), with graceful autoplay fallback and a HUD Mute toggle.
+  - [ ] Wire voiceover playback into `src/app.ts` across `KIOSK_MODE` (advancing after narration finishes), `QUESTION_ACTIVE` (switching from `asking` to `thinking` when prompt audio ends), and `ANSWER_REVEAL` (stinger + explanation), with graceful autoplay fallback.
 - [ ] **Future Work: Lip-Sync Options 2 & 3**
   - [ ] **Option 2 (Pre-computed Amplitude Envelopes):** Emit 20 Hz RMS amplitude arrays in `questions.json` during `make assets` so lip-sync works without Web Audio `AudioContext` / CORS constraints.
   - [ ] **Option 3 (Phoneme / Viseme Mouth Shapes):** Add rounded (`#mouth-oo`) and consonant SVG mouth groups to `src/raja-bommai.ts` and drive them from `edge-tts` `WordBoundary` cues or `rhubarb-lip-sync`.
 - [ ] **Audio Effects (Optional)**
-  - [ ] Add lightweight Web Audio API synthesized tones (or small `.mp3`/`.ogg` sprites) for D-pad navigation ticks, correct chimes, and wrong buzzers.
+  - [x] Add lightweight Web Audio API synthesized tones (`src/sfx.ts`) for D-pad navigation ticks, round start fanfare, correct chimes, and wrong buzzers.
+  - [ ] Replace basic oscillator tones with traditional Indian instrument-inspired SFX (e.g., temple ghanta / manjira bell chime on correct answers, Carnatic raga / veena pluck or mridangam thaapu on round start, subtle woodblock / tala tick on D-pad navigation, and gentle tanpura/tabla drop on wrong answers).
 
 ---
 

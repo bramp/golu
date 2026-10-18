@@ -1,6 +1,7 @@
 import { Game } from "./game";
 import type { Manifest, Question, Region } from "./manifest";
 import { RajaBommaiHost } from "./raja-bommai";
+import { SoundEffects } from "./sfx";
 import { focusFirst, installNavigation } from "./spatial-nav";
 
 function element<K extends keyof HTMLElementTagNameMap>(
@@ -135,6 +136,7 @@ export function mountApp(
   } = {},
 ): () => void {
   const game = new Game();
+  const sfx = new SoundEffects();
   const pack = manifest.packs[0]!;
   let kioskIndex = 0;
   let quitting = false;
@@ -353,6 +355,7 @@ export function mountApp(
     requestMobileFullscreen();
     clearKioskTimer();
     peekFullGolu = false;
+    sfx.play("start");
     game.start(pack);
     render();
   }
@@ -360,6 +363,7 @@ export function mountApp(
   function returnToKiosk(): void {
     quitting = false;
     peekFullGolu = false;
+    sfx.play("tick");
     game.kiosk();
     render();
   }
@@ -367,6 +371,7 @@ export function mountApp(
   function nextDoll(): void {
     kioskIndex = (kioskIndex + 1) % pack.questions.length;
     peekFullGolu = false;
+    sfx.play("tick");
     if (!updateKioskDomInPlace()) {
       render();
     } else {
@@ -377,6 +382,7 @@ export function mountApp(
   function togglePeek(): void {
     requestMobileFullscreen();
     peekFullGolu = !peekFullGolu;
+    sfx.play("tick");
     const stage = root.querySelector<HTMLElement>(".golu-stage");
     const zoomBtn = root.querySelector<HTMLButtonElement>(
       'button[data-action="toggle-zoom"]',
@@ -590,6 +596,7 @@ export function mountApp(
       question.options.forEach((option, index) => {
         const answer = button(option, () => {
           game.answer(index);
+          sfx.play(index === question.correctIndex ? "correct" : "wrong");
           render();
         });
         if (game.phase === "ANSWER_REVEAL") {
@@ -616,6 +623,7 @@ export function mountApp(
               : "Next question",
             () => {
               peekFullGolu = false;
+              sfx.play("tick");
               game.next();
               render();
             },
@@ -700,13 +708,16 @@ export function mountApp(
   window.addEventListener("pointerdown", onUserActivity);
   window.addEventListener("touchstart", onUserActivity, { passive: true });
 
-  const cleanupNav = installNavigation(root, returnToKiosk);
+  const cleanupNav = installNavigation(root, returnToKiosk, () => {
+    sfx.play("tick");
+  });
   render();
   return () => {
     clearKioskTimer();
     clearInactivityTimer();
     clearHostThinkTimer();
     host.destroy();
+    sfx.destroy();
     window.removeEventListener("keydown", onUserActivity);
     window.removeEventListener("pointerdown", onUserActivity);
     window.removeEventListener("touchstart", onUserActivity);
