@@ -42,16 +42,12 @@ describe("playable app", () => {
     const kioskImg = root.querySelector<HTMLImageElement>("img");
     const kioskCanvas = root.querySelector<HTMLElement>(".golu-canvas");
     const spotlight = root.querySelector<HTMLElement>(".golu-spotlight");
-    const rotateOverlay = root.querySelector<HTMLElement>(".rotate-overlay");
     const hostStage = root.querySelector<HTMLElement>(".raja-host-stage");
     expect(kioskImg?.src).toContain("/golu/demo/camping.svg");
     expect(kioskImg?.dataset.zoomed).toBe("true");
     expect(kioskCanvas?.style.transform).not.toBe("translate(0%, 0%) scale(1)");
     expect(spotlight?.style.left).toMatch(/^10(\.00)?%$/);
     expect(spotlight?.style.top).toMatch(/^52(\.00)?%$/);
-    expect(rotateOverlay?.textContent).toContain(
-      "Rotate your phone to landscape",
-    );
     expect(hostStage?.querySelector("svg.raja-svg")).not.toBeNull();
     expect(hostStage?.dataset.hostState).toBe("wave");
 
@@ -201,9 +197,8 @@ describe("playable app", () => {
     );
   });
 
-  it("requests fullscreen and landscape lock on mobile when clicking Show full Golu or Start game", () => {
+  it("requests fullscreen on mobile when clicking Show full Golu or Start game", () => {
     const requestFullscreen = vi.fn().mockResolvedValue(undefined);
-    const lockOrientation = vi.fn().mockResolvedValue(undefined);
     const originalMatchMedia = window.matchMedia;
     const originalRequestFullscreen =
       document.documentElement.requestFullscreen;
@@ -218,21 +213,14 @@ describe("playable app", () => {
       writable: true,
       value: requestFullscreen,
     });
-    Object.defineProperty(window.screen, "orientation", {
-      configurable: true,
-      writable: true,
-      value: { lock: lockOrientation },
-    });
 
     try {
       click("Show full Golu");
       expect(requestFullscreen).toHaveBeenCalledTimes(1);
       expect(requestFullscreen).toHaveBeenCalledWith({ navigationUI: "hide" });
-      expect(lockOrientation).toHaveBeenCalledWith("landscape");
 
       click("Start game");
       expect(requestFullscreen).toHaveBeenCalledTimes(2);
-      expect(lockOrientation).toHaveBeenCalledTimes(2);
     } finally {
       Object.defineProperty(window, "matchMedia", {
         configurable: true,

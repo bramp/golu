@@ -68,10 +68,6 @@ type FullscreenCapableElement = HTMLElement & {
   webkitRequestFullscreen?: () => Promise<void> | void;
 };
 
-type LockableScreenOrientation = ScreenOrientation & {
-  lock?: (orientation: "landscape") => Promise<void>;
-};
-
 export function requestMobileFullscreen(): void {
   if (typeof window.matchMedia !== "function") return;
   if (!window.matchMedia(MOBILE_FULLSCREEN_MEDIA_QUERY).matches) return;
@@ -89,16 +85,6 @@ export function requestMobileFullscreen(): void {
       }
     } catch {
       // Ignore fullscreen errors on unsupported mobile browsers.
-    }
-  }
-
-  const orientation = window.screen?.orientation as
-    LockableScreenOrientation | undefined;
-  if (typeof orientation?.lock === "function") {
-    try {
-      void Promise.resolve(orientation.lock("landscape")).catch(() => {});
-    } catch {
-      // Ignore orientation lock errors when unsupported or denied.
     }
   }
 }
@@ -659,20 +645,6 @@ export function mountApp(
       const nextQuestion = game.questions[game.index + 1];
       if (nextQuestion) new Image().src = mediaUrl(nextQuestion.image);
     }
-    root.append(
-      (() => {
-        const rotateOverlay = element("div", undefined, "rotate-overlay");
-        rotateOverlay.setAttribute("aria-hidden", "true");
-        const icon = element("div", "↻", "rotate-icon");
-        const title = element("h2", "Rotate your phone to landscape");
-        const subtitle = element(
-          "p",
-          "Golu Photo Trivia is designed for a widescreen view. Turn your device sideways to play.",
-        );
-        rotateOverlay.append(icon, title, subtitle);
-        return rotateOverlay;
-      })(),
-    );
 
     if (resetFocus) {
       focusFirst(root);
